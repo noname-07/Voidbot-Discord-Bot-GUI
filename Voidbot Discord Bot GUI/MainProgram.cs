@@ -974,7 +974,7 @@ namespace Voidbot_Discord_Bot_GUI
 
         // Add more commands as needed
     };
-            ulong GuildID = 745824494035271750;
+            ulong GuildID = 000000000000000000;
             // Register each command with the guild
             foreach (var command in commands)
             {
