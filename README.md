@@ -2,6 +2,7 @@ Voidbot-Discord-Bot README
 ![Screenshot 2024-01-14 204215](https://github.com/V0idpool/Voidbot-Discord-Bot-GUI/assets/155442279/032affa1-6663-4d42-9d63-9b089b857d2a)
 
 
+![Screenshot 2024-01-14 204225](https://github.com/V0idpool/Voidbot-Discord-Bot-GUI/assets/155442279/448e73b2-4403-49e7-b105-9f10258a5957)
 
 You will need multiple API's, they are listed below and links are included to make accounts to get your keys.
 
