@@ -4,6 +4,10 @@ Voidbot-Discord-Bot README
 
 ![Screenshot 2024-01-14 204225](https://github.com/V0idpool/Voidbot-Discord-Bot-GUI/assets/155442279/448e73b2-4403-49e7-b105-9f10258a5957)
 
+REQUIREMENTS FOR THE BUILT RELEASE
+Download and install .Net Desktop Framework (This is required) Link Below
+https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-8.0.0-windows-x64-installer
+
 You will need multiple API's, they are listed below and links are included to make accounts to get your keys.
 
 ChatGPT API: https://platform.openai.com/api-keys 
