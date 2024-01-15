@@ -6,7 +6,7 @@ namespace Voidbot_Discord_Bot_GUI
     public partial class Form1 : Form
     {
         MainProgram botInstance = new MainProgram();  // Create an instance of MainProgram
-        private bool isFormVisible = true; 
+        private bool isFormVisible = true;
         public Form1()
         {
             InitializeComponent();
@@ -291,15 +291,15 @@ namespace Voidbot_Discord_Bot_GUI
         {
             if (e.CloseReason == CloseReason.UserClosing)
             {
-                e.Cancel = true;  // Cancel the default close action
+                e.Cancel = true;  
 
-                // Minimize to the system tray
+              
                 this.WindowState = FormWindowState.Minimized;
                 notifyIcon1.Visible = true;
                 this.Hide();
             }
         }
-        public string UserSettings(string File, string Identifier) // User Settings handler
+        public string UserSettings(string File, string Identifier)
         {
             using var S = new System.IO.StreamReader(File);
             string Result = "";
@@ -361,7 +361,7 @@ namespace Voidbot_Discord_Bot_GUI
         }
         private void nsButton5_Click(object sender, EventArgs e)
         {
-            // Minimize to the system tray
+         
             this.WindowState = FormWindowState.Minimized;
             notifyIcon1.Visible = true;
             this.Hide();
@@ -369,58 +369,56 @@ namespace Voidbot_Discord_Bot_GUI
 
 
 
-        private void notifyIcon1_MouseHover(object sender, EventArgs e)
+        private void notifyIcon1_MouseEnter(object sender, EventArgs e)
         {
-            // Optionally, you can handle the MouseHover event to show the tooltip programmatically
-            // This event is triggered when the mouse hovers over the NotifyIcon
-            // Use the tooltip title and text set in the designer
-            string title = notifyIcon1.BalloonTipTitle;
-            string text = notifyIcon1.BalloonTipText;
-
-            // Show the balloon tip with the designer-set title and text
-            notifyIcon1.ShowBalloonTip(1000, title, text, ToolTipIcon.Info);
+           
         }
         private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
             {
-                // Show the form
+           
                 this.Show();
                 this.WindowState = FormWindowState.Normal;
-     
 
-                // Activate the form to give it focus
 
-                // Hide the NotifyIcon
                 notifyIcon1.Visible = false;
             }
         }
 
         private void openBotPanelToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // Handle the "Open" option here
+         
             this.Show();
             this.WindowState = FormWindowState.Normal;
-       
-            // Hide the NotifyIcon
+
+         
             notifyIcon1.Visible = false;
         }
 
         private void closeBotToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // Handle the "Close" option here
-            // For example, exit the application
+          
             Application.Exit();
         }
-
-        private void notifyIcon1_MouseClick(object sender, MouseEventArgs e)
+        private void SetNotifyIconTooltip()
         {
-            // Show the context menu on right-click
-            if (e.Button == MouseButtons.Right)
-            {
-                // Create and show the context menu at the mouse position
-                nsContextMenu1.Show(Cursor.Position);
-            }
+            string userfile = @"\UserCFG.ini";
+            string botNickname = "VoidBot Discord Bot Running in Tray: " + UserSettings(Application.StartupPath + userfile, "BotNickname");
+
+            string title = string.IsNullOrEmpty(botNickname) ? "VoidBot Discord Bot Running in Tray: Waiting..." : botNickname;
+
+            
+       
+            notifyIcon1.Text = title;
+            notifyIcon1.ShowBalloonTip(1000, title, title, ToolTipIcon.Info);
+        }
+
+        private void notifyIcon1_MouseMove(object sender, MouseEventArgs e)
+        {
+           
+            SetNotifyIconTooltip();
+            
         }
     }
 
