@@ -1,4 +1,4 @@
-﻿namespace Voidbot_Discord_Bot_GUI
+namespace Voidbot_Discord_Bot_GUI
 {
     partial class Form1
     {
@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             nsTabControl1 = new NSTabControl();
             tabPage1 = new TabPage();
@@ -74,6 +75,7 @@
             nsLabel19 = new NSLabel();
             nsLabel20 = new NSLabel();
             nsGroupBox5 = new NSGroupBox();
+            nsButton5 = new NSButton();
             label2 = new Label();
             label1 = new Label();
             nsGroupBox6 = new NSGroupBox();
@@ -85,6 +87,10 @@
             nsGroupBox7 = new NSGroupBox();
             nsButton4 = new NSButton();
             nsLabel18 = new NSLabel();
+            notifyIcon1 = new NotifyIcon(components);
+            nsContextMenu1 = new NSContextMenu();
+            openBotPanelToolStripMenuItem = new ToolStripMenuItem();
+            closeBotToolStripMenuItem = new ToolStripMenuItem();
             nsTabControl1.SuspendLayout();
             tabPage1.SuspendLayout();
             nsGroupBox3.SuspendLayout();
@@ -96,6 +102,7 @@
             nsGroupBox6.SuspendLayout();
             tabPage2.SuspendLayout();
             nsGroupBox7.SuspendLayout();
+            nsContextMenu1.SuspendLayout();
             SuspendLayout();
             // 
             // nsTabControl1
@@ -654,6 +661,7 @@
             // nsGroupBox5
             // 
             nsGroupBox5.BackColor = Color.FromArgb(30, 30, 30);
+            nsGroupBox5.Controls.Add(nsButton5);
             nsGroupBox5.Controls.Add(label2);
             nsGroupBox5.Controls.Add(label1);
             nsGroupBox5.DrawSeperator = false;
@@ -664,6 +672,15 @@
             nsGroupBox5.TabIndex = 37;
             nsGroupBox5.Text = "nsGroupBox5";
             nsGroupBox5.Title = "";
+            // 
+            // nsButton5
+            // 
+            nsButton5.Location = new Point(369, 3);
+            nsButton5.Name = "nsButton5";
+            nsButton5.Size = new Size(113, 23);
+            nsButton5.TabIndex = 29;
+            nsButton5.Text = "Minimize To Tray";
+            nsButton5.Click += nsButton5_Click;
             // 
             // label2
             // 
@@ -789,6 +806,38 @@
             nsLabel18.Value1 = "Bot Console View (Shows Logs, Errors, Disconnects, Etc.)";
             nsLabel18.Value2 = " ";
             // 
+            // notifyIcon1
+            // 
+            notifyIcon1.BalloonTipIcon = ToolTipIcon.Info;
+            notifyIcon1.BalloonTipText = "Bot is running in the background...";
+            notifyIcon1.BalloonTipTitle = "VoidBot Discord Bot";
+            notifyIcon1.ContextMenuStrip = nsContextMenu1;
+            notifyIcon1.Icon = (Icon)resources.GetObject("notifyIcon1.Icon");
+            notifyIcon1.MouseDoubleClick += notifyIcon1_MouseDoubleClick;
+            notifyIcon1.MouseMove += notifyIcon1_MouseMove;
+            // 
+            // nsContextMenu1
+            // 
+            nsContextMenu1.ForeColor = Color.White;
+            nsContextMenu1.Items.AddRange(new ToolStripItem[] { openBotPanelToolStripMenuItem, closeBotToolStripMenuItem });
+            nsContextMenu1.Name = "nsContextMenu1";
+            nsContextMenu1.Size = new Size(157, 48);
+            nsContextMenu1.Text = "File...";
+            // 
+            // openBotPanelToolStripMenuItem
+            // 
+            openBotPanelToolStripMenuItem.Name = "openBotPanelToolStripMenuItem";
+            openBotPanelToolStripMenuItem.Size = new Size(156, 22);
+            openBotPanelToolStripMenuItem.Text = "Open Bot Panel";
+            openBotPanelToolStripMenuItem.Click += openBotPanelToolStripMenuItem_Click;
+            // 
+            // closeBotToolStripMenuItem
+            // 
+            closeBotToolStripMenuItem.Name = "closeBotToolStripMenuItem";
+            closeBotToolStripMenuItem.Size = new Size(156, 22);
+            closeBotToolStripMenuItem.Text = "Close Bot...";
+            closeBotToolStripMenuItem.Click += closeBotToolStripMenuItem_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -816,6 +865,7 @@
             tabPage2.ResumeLayout(false);
             tabPage2.PerformLayout();
             nsGroupBox7.ResumeLayout(false);
+            nsContextMenu1.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -877,5 +927,10 @@
         private TextBox botConsoleView;
         private NSButton nsButton4;
         private NSGroupBox nsGroupBox7;
+        private NotifyIcon notifyIcon1;
+        private NSButton nsButton5;
+        private NSContextMenu nsContextMenu1;
+        private ToolStripMenuItem openBotPanelToolStripMenuItem;
+        private ToolStripMenuItem closeBotToolStripMenuItem;
     }
 }
