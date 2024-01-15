@@ -1,11 +1,12 @@
 using System.Diagnostics;
+using System.Windows.Forms;
 
 namespace Voidbot_Discord_Bot_GUI
 {
     public partial class Form1 : Form
     {
         MainProgram botInstance = new MainProgram();  // Create an instance of MainProgram
-
+        private bool isFormVisible = true; 
         public Form1()
         {
             InitializeComponent();
@@ -142,7 +143,7 @@ namespace Voidbot_Discord_Bot_GUI
             userfile = @"\UserCFG.ini";
             string userconfigs;
             userconfigs = Application.StartupPath + @"\UserCFG.ini";
-            if (!File.Exists(userconfigs))
+            if (!System.IO.File.Exists(userconfigs))
             {
 
                 MessageBox.Show("UserCFG.ini not found in Application Directory, Creating file...");
@@ -286,6 +287,18 @@ namespace Voidbot_Discord_Bot_GUI
             }
 
         }
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                e.Cancel = true;  // Cancel the default close action
+
+                // Minimize to the system tray
+                this.WindowState = FormWindowState.Minimized;
+                notifyIcon1.Visible = true;
+                this.Hide();
+            }
+        }
         public string UserSettings(string File, string Identifier) // User Settings handler
         {
             using var S = new System.IO.StreamReader(File);
@@ -346,10 +359,68 @@ namespace Voidbot_Discord_Bot_GUI
         {
             botConsoleView.Text = null;
         }
-
-        private void nsCheckBox1_CheckedChanged_1(object sender)
+        private void nsButton5_Click(object sender, EventArgs e)
         {
+            // Minimize to the system tray
+            this.WindowState = FormWindowState.Minimized;
+            notifyIcon1.Visible = true;
+            this.Hide();
+        }
 
+
+
+        private void notifyIcon1_MouseHover(object sender, EventArgs e)
+        {
+            // Optionally, you can handle the MouseHover event to show the tooltip programmatically
+            // This event is triggered when the mouse hovers over the NotifyIcon
+            // Use the tooltip title and text set in the designer
+            string title = notifyIcon1.BalloonTipTitle;
+            string text = notifyIcon1.BalloonTipText;
+
+            // Show the balloon tip with the designer-set title and text
+            notifyIcon1.ShowBalloonTip(1000, title, text, ToolTipIcon.Info);
+        }
+        private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                // Show the form
+                this.Show();
+                this.WindowState = FormWindowState.Normal;
+     
+
+                // Activate the form to give it focus
+
+                // Hide the NotifyIcon
+                notifyIcon1.Visible = false;
+            }
+        }
+
+        private void openBotPanelToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Handle the "Open" option here
+            this.Show();
+            this.WindowState = FormWindowState.Normal;
+       
+            // Hide the NotifyIcon
+            notifyIcon1.Visible = false;
+        }
+
+        private void closeBotToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Handle the "Close" option here
+            // For example, exit the application
+            Application.Exit();
+        }
+
+        private void notifyIcon1_MouseClick(object sender, MouseEventArgs e)
+        {
+            // Show the context menu on right-click
+            if (e.Button == MouseButtons.Right)
+            {
+                // Create and show the context menu at the mouse position
+                nsContextMenu1.Show(Cursor.Position);
+            }
         }
     }
 
