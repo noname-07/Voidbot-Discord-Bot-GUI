@@ -1,4 +1,4 @@
-﻿namespace Voidbot_Discord_Bot_GUI
+namespace Voidbot_Discord_Bot_GUI
 {
     partial class Form1
     {
@@ -33,6 +33,8 @@
             nsTabControl1 = new NSTabControl();
             tabPage1 = new TabPage();
             nsGroupBox3 = new NSGroupBox();
+            ServerID = new NSTextBox();
+            nsLabel23 = new NSLabel();
             nsLabel17 = new NSLabel();
             nsLabel16 = new NSLabel();
             nsLabel13 = new NSLabel();
@@ -97,8 +99,6 @@
             nsContextMenu1 = new NSContextMenu();
             openBotPanelToolStripMenuItem = new ToolStripMenuItem();
             closeBotToolStripMenuItem = new ToolStripMenuItem();
-            nsLabel23 = new NSLabel();
-            ServerID = new NSTextBox();
             nsTabControl1.SuspendLayout();
             tabPage1.SuspendLayout();
             nsGroupBox3.SuspendLayout();
@@ -173,6 +173,29 @@
             nsGroupBox3.TabIndex = 35;
             nsGroupBox3.Text = "nsGroupBox3";
             nsGroupBox3.Title = "";
+            // 
+            // ServerID
+            // 
+            ServerID.Location = new Point(157, 34);
+            ServerID.MaxLength = 32767;
+            ServerID.Multiline = false;
+            ServerID.Name = "ServerID";
+            ServerID.ReadOnly = false;
+            ServerID.Size = new Size(313, 23);
+            ServerID.TabIndex = 27;
+            ServerID.TextAlign = HorizontalAlignment.Left;
+            ServerID.UseSystemPasswordChar = true;
+            // 
+            // nsLabel23
+            // 
+            nsLabel23.Font = new Font("Segoe UI", 11.25F, FontStyle.Bold);
+            nsLabel23.Location = new Point(6, 34);
+            nsLabel23.Name = "nsLabel23";
+            nsLabel23.Size = new Size(123, 23);
+            nsLabel23.TabIndex = 28;
+            nsLabel23.Text = "nsLabel23";
+            nsLabel23.Value1 = "Your Server ID: ";
+            nsLabel23.Value2 = " ";
             // 
             // nsLabel17
             // 
@@ -785,7 +808,7 @@
             tabPage2.Location = new Point(119, 4);
             tabPage2.Name = "tabPage2";
             tabPage2.Padding = new Padding(3);
-            tabPage2.Size = new Size(1033, 508);
+            tabPage2.Size = new Size(1033, 483);
             tabPage2.TabIndex = 1;
             tabPage2.Text = "Console View";
             // 
@@ -842,9 +865,9 @@
             nsGroupBox9.Controls.Add(commandInputConsoleview);
             nsGroupBox9.Controls.Add(nsLabel21);
             nsGroupBox9.DrawSeperator = false;
-            nsGroupBox9.Location = new Point(3, 382);
+            nsGroupBox9.Location = new Point(3, 381);
             nsGroupBox9.Name = "nsGroupBox9";
-            nsGroupBox9.Size = new Size(1030, 75);
+            nsGroupBox9.Size = new Size(1030, 101);
             nsGroupBox9.SubTitle = "";
             nsGroupBox9.TabIndex = 38;
             nsGroupBox9.Text = "nsGroupBox9";
@@ -867,7 +890,7 @@
             // 
             consolebtnSend.Enabled = false;
             consolebtnSend.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            consolebtnSend.Location = new Point(945, 5);
+            consolebtnSend.Location = new Point(947, 18);
             consolebtnSend.Name = "consolebtnSend";
             consolebtnSend.Size = new Size(79, 59);
             consolebtnSend.TabIndex = 37;
@@ -881,7 +904,7 @@
             commandInputConsoleview.Multiline = true;
             commandInputConsoleview.Name = "commandInputConsoleview";
             commandInputConsoleview.ReadOnly = false;
-            commandInputConsoleview.Size = new Size(698, 59);
+            commandInputConsoleview.Size = new Size(698, 87);
             commandInputConsoleview.TabIndex = 35;
             commandInputConsoleview.TextAlign = HorizontalAlignment.Left;
             commandInputConsoleview.UseSystemPasswordChar = false;
@@ -928,29 +951,6 @@
             closeBotToolStripMenuItem.Size = new Size(156, 22);
             closeBotToolStripMenuItem.Text = "Close Bot...";
             closeBotToolStripMenuItem.Click += closeBotToolStripMenuItem_Click;
-            // 
-            // nsLabel23
-            // 
-            nsLabel23.Font = new Font("Segoe UI", 11.25F, FontStyle.Bold);
-            nsLabel23.Location = new Point(6, 34);
-            nsLabel23.Name = "nsLabel23";
-            nsLabel23.Size = new Size(123, 23);
-            nsLabel23.TabIndex = 28;
-            nsLabel23.Text = "nsLabel23";
-            nsLabel23.Value1 = "Your Server ID: ";
-            nsLabel23.Value2 = " ";
-            // 
-            // ServerID
-            // 
-            ServerID.Location = new Point(157, 34);
-            ServerID.MaxLength = 32767;
-            ServerID.Multiline = false;
-            ServerID.Name = "ServerID";
-            ServerID.ReadOnly = false;
-            ServerID.Size = new Size(313, 23);
-            ServerID.TabIndex = 27;
-            ServerID.TextAlign = HorizontalAlignment.Left;
-            ServerID.UseSystemPasswordChar = true;
             // 
             // Form1
             // 
