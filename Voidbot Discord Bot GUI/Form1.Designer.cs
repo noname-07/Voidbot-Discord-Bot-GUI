@@ -97,6 +97,8 @@
             nsContextMenu1 = new NSContextMenu();
             openBotPanelToolStripMenuItem = new ToolStripMenuItem();
             closeBotToolStripMenuItem = new ToolStripMenuItem();
+            nsLabel23 = new NSLabel();
+            ServerID = new NSTextBox();
             nsTabControl1.SuspendLayout();
             tabPage1.SuspendLayout();
             nsGroupBox3.SuspendLayout();
@@ -124,7 +126,7 @@
             nsTabControl1.Multiline = true;
             nsTabControl1.Name = "nsTabControl1";
             nsTabControl1.SelectedIndex = 0;
-            nsTabControl1.Size = new Size(1156, 465);
+            nsTabControl1.Size = new Size(1156, 491);
             nsTabControl1.SizeMode = TabSizeMode.Fixed;
             nsTabControl1.TabIndex = 34;
             // 
@@ -141,13 +143,15 @@
             tabPage1.Location = new Point(119, 4);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(1033, 457);
+            tabPage1.Size = new Size(1033, 483);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Bot Main Page";
             // 
             // nsGroupBox3
             // 
             nsGroupBox3.BackColor = Color.FromArgb(30, 30, 30);
+            nsGroupBox3.Controls.Add(ServerID);
+            nsGroupBox3.Controls.Add(nsLabel23);
             nsGroupBox3.Controls.Add(nsLabel17);
             nsGroupBox3.Controls.Add(nsLabel16);
             nsGroupBox3.Controls.Add(nsLabel13);
@@ -164,7 +168,7 @@
             nsGroupBox3.DrawSeperator = false;
             nsGroupBox3.Location = new Point(545, 99);
             nsGroupBox3.Name = "nsGroupBox3";
-            nsGroupBox3.Size = new Size(486, 246);
+            nsGroupBox3.Size = new Size(486, 270);
             nsGroupBox3.SubTitle = "";
             nsGroupBox3.TabIndex = 35;
             nsGroupBox3.Text = "nsGroupBox3";
@@ -173,7 +177,7 @@
             // nsLabel17
             // 
             nsLabel17.Font = new Font("Segoe UI", 11.25F, FontStyle.Bold);
-            nsLabel17.Location = new Point(4, 180);
+            nsLabel17.Location = new Point(4, 208);
             nsLabel17.Name = "nsLabel17";
             nsLabel17.Size = new Size(123, 23);
             nsLabel17.TabIndex = 26;
@@ -184,7 +188,7 @@
             // nsLabel16
             // 
             nsLabel16.Font = new Font("Segoe UI", 11.25F, FontStyle.Bold);
-            nsLabel16.Location = new Point(4, 151);
+            nsLabel16.Location = new Point(4, 179);
             nsLabel16.Name = "nsLabel16";
             nsLabel16.Size = new Size(87, 23);
             nsLabel16.TabIndex = 25;
@@ -195,7 +199,7 @@
             // nsLabel13
             // 
             nsLabel13.Font = new Font("Segoe UI", 11.25F, FontStyle.Bold);
-            nsLabel13.Location = new Point(4, 122);
+            nsLabel13.Location = new Point(4, 150);
             nsLabel13.Name = "nsLabel13";
             nsLabel13.Size = new Size(140, 23);
             nsLabel13.TabIndex = 24;
@@ -205,12 +209,12 @@
             // 
             // BotPersonality
             // 
-            BotPersonality.Location = new Point(159, 180);
+            BotPersonality.Location = new Point(157, 208);
             BotPersonality.MaxLength = 32767;
             BotPersonality.Multiline = true;
             BotPersonality.Name = "BotPersonality";
             BotPersonality.ReadOnly = false;
-            BotPersonality.Size = new Size(313, 63);
+            BotPersonality.Size = new Size(313, 47);
             BotPersonality.TabIndex = 15;
             BotPersonality.TextAlign = HorizontalAlignment.Left;
             BotPersonality.UseSystemPasswordChar = false;
@@ -218,7 +222,7 @@
             // nsLabel12
             // 
             nsLabel12.Font = new Font("Segoe UI", 11.25F, FontStyle.Bold);
-            nsLabel12.Location = new Point(4, 93);
+            nsLabel12.Location = new Point(4, 121);
             nsLabel12.Name = "nsLabel12";
             nsLabel12.Size = new Size(140, 23);
             nsLabel12.TabIndex = 23;
@@ -228,7 +232,7 @@
             // 
             // BotNickname
             // 
-            BotNickname.Location = new Point(159, 151);
+            BotNickname.Location = new Point(157, 179);
             BotNickname.MaxLength = 32767;
             BotNickname.Multiline = false;
             BotNickname.Name = "BotNickname";
@@ -241,7 +245,7 @@
             // nsLabel11
             // 
             nsLabel11.Font = new Font("Segoe UI", 11.25F, FontStyle.Bold);
-            nsLabel11.Location = new Point(4, 64);
+            nsLabel11.Location = new Point(4, 92);
             nsLabel11.Name = "nsLabel11";
             nsLabel11.Size = new Size(103, 23);
             nsLabel11.TabIndex = 22;
@@ -262,7 +266,7 @@
             // 
             // StreamerRole
             // 
-            StreamerRole.Location = new Point(159, 122);
+            StreamerRole.Location = new Point(157, 150);
             StreamerRole.MaxLength = 32767;
             StreamerRole.Multiline = false;
             StreamerRole.Name = "StreamerRole";
@@ -275,7 +279,7 @@
             // nsLabel15
             // 
             nsLabel15.Font = new Font("Segoe UI", 11.25F, FontStyle.Bold);
-            nsLabel15.Location = new Point(4, 35);
+            nsLabel15.Location = new Point(4, 63);
             nsLabel15.Name = "nsLabel15";
             nsLabel15.Size = new Size(123, 23);
             nsLabel15.TabIndex = 20;
@@ -285,7 +289,7 @@
             // 
             // InviteLink
             // 
-            InviteLink.Location = new Point(159, 35);
+            InviteLink.Location = new Point(157, 63);
             InviteLink.MaxLength = 32767;
             InviteLink.Multiline = false;
             InviteLink.Name = "InviteLink";
@@ -297,7 +301,7 @@
             // 
             // ModeratorRole
             // 
-            ModeratorRole.Location = new Point(159, 93);
+            ModeratorRole.Location = new Point(157, 121);
             ModeratorRole.MaxLength = 32767;
             ModeratorRole.Multiline = false;
             ModeratorRole.Name = "ModeratorRole";
@@ -309,7 +313,7 @@
             // 
             // AutoRole
             // 
-            AutoRole.Location = new Point(159, 64);
+            AutoRole.Location = new Point(157, 92);
             AutoRole.MaxLength = 32767;
             AutoRole.Multiline = false;
             AutoRole.Name = "AutoRole";
@@ -332,9 +336,9 @@
             nsGroupBox2.Controls.Add(Facebook);
             nsGroupBox2.Controls.Add(Steam);
             nsGroupBox2.DrawSeperator = false;
-            nsGroupBox2.Location = new Point(0, 268);
+            nsGroupBox2.Location = new Point(3, 287);
             nsGroupBox2.Name = "nsGroupBox2";
-            nsGroupBox2.Size = new Size(539, 165);
+            nsGroupBox2.Size = new Size(539, 173);
             nsGroupBox2.SubTitle = "";
             nsGroupBox2.TabIndex = 34;
             nsGroupBox2.Text = "nsGroupBox2";
@@ -459,7 +463,7 @@
             nsGroupBox1.DrawSeperator = false;
             nsGroupBox1.Location = new Point(0, 99);
             nsGroupBox1.Name = "nsGroupBox1";
-            nsGroupBox1.Size = new Size(539, 163);
+            nsGroupBox1.Size = new Size(539, 182);
             nsGroupBox1.SubTitle = "";
             nsGroupBox1.TabIndex = 33;
             nsGroupBox1.Text = "nsGroupBox1";
@@ -692,7 +696,7 @@
             nsGroupBox6.Controls.Add(nsButton1);
             nsGroupBox6.Controls.Add(nsButton2);
             nsGroupBox6.DrawSeperator = false;
-            nsGroupBox6.Location = new Point(545, 348);
+            nsGroupBox6.Location = new Point(545, 375);
             nsGroupBox6.Name = "nsGroupBox6";
             nsGroupBox6.Size = new Size(486, 85);
             nsGroupBox6.SubTitle = "";
@@ -736,7 +740,7 @@
             nsGroupBox8.Controls.Add(linkLabel1);
             nsGroupBox8.Controls.Add(linkLabel2);
             nsGroupBox8.DrawSeperator = false;
-            nsGroupBox8.Location = new Point(0, 434);
+            nsGroupBox8.Location = new Point(2, 460);
             nsGroupBox8.Name = "nsGroupBox8";
             nsGroupBox8.Size = new Size(1028, 23);
             nsGroupBox8.SubTitle = "";
@@ -781,7 +785,7 @@
             tabPage2.Location = new Point(119, 4);
             tabPage2.Name = "tabPage2";
             tabPage2.Padding = new Padding(3);
-            tabPage2.Size = new Size(1033, 457);
+            tabPage2.Size = new Size(1033, 508);
             tabPage2.TabIndex = 1;
             tabPage2.Text = "Console View";
             // 
@@ -925,12 +929,35 @@
             closeBotToolStripMenuItem.Text = "Close Bot...";
             closeBotToolStripMenuItem.Click += closeBotToolStripMenuItem_Click;
             // 
+            // nsLabel23
+            // 
+            nsLabel23.Font = new Font("Segoe UI", 11.25F, FontStyle.Bold);
+            nsLabel23.Location = new Point(6, 34);
+            nsLabel23.Name = "nsLabel23";
+            nsLabel23.Size = new Size(123, 23);
+            nsLabel23.TabIndex = 28;
+            nsLabel23.Text = "nsLabel23";
+            nsLabel23.Value1 = "Your Server ID: ";
+            nsLabel23.Value2 = " ";
+            // 
+            // ServerID
+            // 
+            ServerID.Location = new Point(157, 34);
+            ServerID.MaxLength = 32767;
+            ServerID.Multiline = false;
+            ServerID.Name = "ServerID";
+            ServerID.ReadOnly = false;
+            ServerID.Size = new Size(313, 23);
+            ServerID.TabIndex = 27;
+            ServerID.TextAlign = HorizontalAlignment.Left;
+            ServerID.UseSystemPasswordChar = true;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.Black;
-            ClientSize = new Size(1155, 459);
+            ClientSize = new Size(1155, 486);
             Controls.Add(nsTabControl1);
             FormBorderStyle = FormBorderStyle.Fixed3D;
             Icon = (Icon)resources.GetObject("$this.Icon");
@@ -1027,5 +1054,7 @@
         public NSComboBox nsComboBox1;
         private NSLabel nsLabel22;
         public TextBox botConsoleView;
+        private NSTextBox ServerID;
+        private NSLabel nsLabel23;
     }
 }
