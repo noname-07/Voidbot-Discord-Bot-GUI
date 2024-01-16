@@ -226,14 +226,14 @@ namespace Voidbot_Discord_Bot_GUI
                                           botInstance.DiscordClient.ConnectionState == ConnectionState.Connected;
             }
 
-            // Check if the bot is stopped and exit the loop
-            if (botInstance.DiscordClient == null || botInstance.DiscordClient.ConnectionState == ConnectionState.Disconnected)
-            {
-                break;
-            }
+                    if (botInstance.DiscordClient == null || botInstance.DiscordClient.ConnectionState != ConnectionState.Connected)
+                    {
+                        break;
+                    }
 
-            // Wait for a short interval before checking again
-            await Task.Delay(1000);
+
+                    // Wait for a short interval before checking again
+                    await Task.Delay(1000);
                 }
             });
         }
@@ -322,6 +322,7 @@ namespace Voidbot_Discord_Bot_GUI
                 INI2.WriteValue("Settings", "Steam", Steam.Text, INI2.GetPath()); // Save the Steam link
                 INI2.WriteValue("Settings", "Facebook", Facebook.Text, INI2.GetPath()); // Save the Facebook link
                 INI2.WriteValue("Settings", "InviteLink", InviteLink.Text, INI2.GetPath()); // Save the InviteLink
+                INI2.WriteValue("Settings", "ServerID", ServerID.Text, INI2.GetPath()); // Save the ServerID
                 INI2.WriteValue("Settings", "AutoRole", AutoRole.Text, INI2.GetPath()); // Save the AutoRole ID
                 INI2.WriteValue("Settings", "ModeratorRole", ModeratorRole.Text, INI2.GetPath()); // Save the ModeratorRole ID
                 INI2.WriteValue("Settings", "StreamerRole", StreamerRole.Text, INI2.GetPath()); // Save the StreamerRole ID
@@ -354,6 +355,7 @@ namespace Voidbot_Discord_Bot_GUI
                 Steam.Enabled = false;
                 Facebook.Enabled = false;
                 InviteLink.Enabled = false;
+                ServerID.Enabled = false;
                 AutoRole.Enabled = false;
                 ModeratorRole.Enabled = false;
                 StreamerRole.Enabled = false;
@@ -394,6 +396,7 @@ namespace Voidbot_Discord_Bot_GUI
                 Steam.Enabled = true;
                 Facebook.Enabled = true;
                 InviteLink.Enabled = true;
+                ServerID.Enabled = true;
                 AutoRole.Enabled = true;
                 ModeratorRole.Enabled = true;
                 StreamerRole.Enabled = true;
@@ -502,6 +505,14 @@ namespace Voidbot_Discord_Bot_GUI
             else
             {
                 Facebook.Text = UserSettings(Application.StartupPath + userfile, "Facebook");
+            } 
+            if (string.IsNullOrEmpty(UserSettings(Application.StartupPath + userfile, "ServerID")))
+            {
+                ServerID.Text = "Input Your Server ID";
+            }
+            else
+            {
+                ServerID.Text = UserSettings(Application.StartupPath + userfile, "ServerID");
             }
 
             if (string.IsNullOrEmpty(UserSettings(Application.StartupPath + userfile, "InviteLink")))
