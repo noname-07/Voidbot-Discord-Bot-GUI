@@ -1,8 +1,9 @@
 Voidbot-Discord-Bot README
-![Screenshot 2024-01-14 204215](https://github.com/V0idpool/Voidbot-Discord-Bot-GUI/assets/155442279/032affa1-6663-4d42-9d63-9b089b857d2a)
 
-
-![Screenshot 2024-01-14 204225](https://github.com/V0idpool/Voidbot-Discord-Bot-GUI/assets/155442279/448e73b2-4403-49e7-b105-9f10258a5957)
+![Screenshot 2024-01-16 032120](https://github.com/V0idpool/Voidbot-Discord-Bot-GUI/assets/155442279/ecaf3b58-0d2d-482e-9200-c607e19a6376)
+![Screenshot 2024-01-16 032104](https://github.com/V0idpool/Voidbot-Discord-Bot-GUI/assets/155442279/44de7614-7b11-49d3-9125-f1526d013502)
+![Screenshot 2024-01-16 032212](https://github.com/V0idpool/Voidbot-Discord-Bot-GUI/assets/155442279/d818db6b-9773-4d9d-94a1-ac0fca9daf44)
+![Screenshot 2024-01-16 032236](https://github.com/V0idpool/Voidbot-Discord-Bot-GUI/assets/155442279/c4695709-3e6e-462a-b2e3-e3b3366d6bbf)
 
 REQUIREMENTS FOR THE BUILT RELEASE
 Download and install .Net Desktop Framework (This is required) Link Below
