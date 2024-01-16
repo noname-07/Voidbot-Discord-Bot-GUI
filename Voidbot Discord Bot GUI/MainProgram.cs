@@ -985,11 +985,6 @@ public class MainProgram
                 }
             }
 
-
-            // Add this block of code inside your HandleMessageAsync method
-
-            // Add this block of code inside your HandleMessageAsync method
-
             if (message.Content.ToLower().StartsWith("/purge") && message.Author is SocketGuildUser authPurge)
             {
                 // Check if the author has the "Administrator" permission
