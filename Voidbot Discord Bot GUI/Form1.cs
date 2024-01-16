@@ -746,4 +746,3 @@ namespace Voidbot_Discord_Bot_GUI
     }
 
 }
-//dotnet publish -r win-x64 /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true --output "C:\Users\Ken\Desktop\TotK Tools Mod Manager" <======================== Publish single file options powershell commands
