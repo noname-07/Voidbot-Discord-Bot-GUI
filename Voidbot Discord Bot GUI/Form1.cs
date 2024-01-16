@@ -690,6 +690,7 @@ namespace Voidbot_Discord_Bot_GUI
 
             Application.Exit();
         }
+
         private void SetNotifyIconTooltip()
         {
             string userfile = @"\UserCFG.ini";
@@ -697,10 +698,25 @@ namespace Voidbot_Discord_Bot_GUI
 
             string title = string.IsNullOrEmpty(botNickname) ? "VoidBot Discord Bot Running in Tray: Waiting..." : botNickname;
 
+            if (botInstance.DiscordClient != null)
+            {
+                notifyIcon1.Text = title;
+                notifyIcon1.ShowBalloonTip(1000, title, title, ToolTipIcon.Info);
+            }
+            else
+            {
+                //do nothing
+            }
 
+            // Check if the bot is stopped
+            if (botInstance.DiscordClient == null || botInstance.DiscordClient.ConnectionState == ConnectionState.Disconnected)
+            {
+                notifyIcon1.Text = "VoidBot Discord Bot Running in Tray: Waiting...";
+                notifyIcon1.ShowBalloonTip(1000, "VoidBot Discord Bot Running in Tray: Waiting...", "VoidBot Discord Bot Running in Tray: Waiting...", ToolTipIcon.Info);
+               
+            }
 
-            notifyIcon1.Text = title;
-            notifyIcon1.ShowBalloonTip(1000, title, title, ToolTipIcon.Info);
+          
         }
 
         private void notifyIcon1_MouseMove(object sender, MouseEventArgs e)
