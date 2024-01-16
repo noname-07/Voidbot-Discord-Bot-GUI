@@ -1,4 +1,4 @@
-namespace Voidbot_Discord_Bot_GUI
+﻿namespace Voidbot_Discord_Bot_GUI
 {
     partial class Form1
     {
