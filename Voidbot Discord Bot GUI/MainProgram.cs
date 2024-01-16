@@ -29,11 +29,39 @@ using System.Net;
 using Google.Apis.YouTube.v3.Data;
 using System.Reflection;
 using HtmlDocument = HtmlAgilityPack.HtmlDocument;
+using TwitchLib.Communication.Interfaces;
 namespace Voidbot_Discord_Bot_GUI
 {
- class MainProgram
+public class MainProgram
     {
+        private static Form1 _instance;
+
+        public static Form1 Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = new Form1();
+                }
+                return _instance;
+            }
+        }
+       
+
         private DiscordSocketClient _client;
+        // Expose _client through a property
+
+        DiscordSocketClient client = new DiscordSocketClient();
+
+
+
+
+        public DiscordSocketClient DiscordClient
+        {
+            get { return _client; }
+            private set { _client = value; }
+        }
         private string GptApiKey;
         private string DiscordBotToken;
         string startupPath = AppDomain.CurrentDomain.BaseDirectory;
@@ -46,6 +74,7 @@ namespace Voidbot_Discord_Bot_GUI
 
         // Define the event
         public event Action<string> BotDisconnected;
+        public event Func<Task> BotConnected;
         private CancellationTokenSource cancellationTokenSource;
         private List<LogMessage> logMessages = new List<LogMessage>();
         static void MainEntryPoint(string[] args)
@@ -53,7 +82,7 @@ namespace Voidbot_Discord_Bot_GUI
         public async Task LoadTasks()
         {
             // Load user settings from the INI file
-
+          
             string userfile = @"\UserCFG.ini";
             GptApiKey = UserSettings(startupPath + userfile, "GptApiKey");
             DiscordBotToken = UserSettings(startupPath + userfile, "DiscordBotToken");
@@ -84,8 +113,11 @@ namespace Voidbot_Discord_Bot_GUI
             return Result;
 
         }
-  
 
+        public void SetForm1Instance(Form1 form1Instance)
+        {
+            _instance = form1Instance;
+        }
         public async Task StartBotAsync()
         {
             if (!isBotRunning)
@@ -111,12 +143,21 @@ namespace Voidbot_Discord_Bot_GUI
 
         public async Task DisconnectBot()
         {
-           
-                // Additional cleanup tasks can be added here
-     
-            await _client?.LogoutAsync();
-            await _client?.StopAsync();
+            // Additional cleanup tasks can be added here
 
+            if (_client != null)
+            {
+                await _client.StopAsync();
+                await _client.LogoutAsync();
+
+                _client.Dispose();
+                _client = null;
+                DiscordClient = null;
+            }
+
+
+            // Set _instance to null or perform any additional cleanup
+            _instance = null;
         }
         public async Task RunBotAsync()
         {
@@ -139,6 +180,8 @@ namespace Voidbot_Discord_Bot_GUI
                 _client.Log += Log;
                 _client.MessageReceived += HandleMessageAsync;
                 _client.UserJoined += UserJoined;
+         
+                _client.Ready += BotConnected;
                 // Start checking the connection state in a separate task
                 Task.Run(async () =>
                 {
@@ -184,7 +227,7 @@ namespace Voidbot_Discord_Bot_GUI
             string logText = $"{DateTime.Now} [{arg.Severity}] {arg.Source}: {arg.Exception?.ToString() ?? arg.Message}";
 
             // Log to the console
-            Console.WriteLine(logText);
+       
             // Trigger the event with the log message
             LogReceived?.Invoke(logText);
             // Save to the file
@@ -215,8 +258,125 @@ namespace Voidbot_Discord_Bot_GUI
             }
         }
 
+        public async Task PopulateComboBoxWithChannels()
+        {
+            Task.Run(async () =>
+            {
+                while (true)
+                {
+                    // Check if the form is still accessible before updating the UI
+                    if (_instance != null && !_instance.IsDisposed)
+                    {
+                        // Get all guilds (servers) the bot is connected to
+                        var newChannels = new HashSet<string>();
 
-        private async Task HandleMessageAsync(SocketMessage arg)
+                        foreach (var guild in _client?.Guilds ?? Enumerable.Empty<SocketGuild>())
+                        {
+                            // Check if the guild is null before accessing text channels
+                            if (guild == null)
+                            {
+                                continue;
+                            }
+
+                            // Get all text channels in the guild
+                            var textChannels = guild.TextChannels;
+
+                            // Add each text channel's name to the temporary HashSet
+                            foreach (var channel in textChannels)
+                            {
+                                // Check if the channel is null before adding
+                                if (channel != null)
+                                {
+                                    newChannels.Add($"{channel.Name}");
+                                }
+                            }
+                        }
+
+                        // Safely update the ComboBox items only if there are changes
+                        _instance.nsComboBox1?.Invoke(new Action(() =>
+                        {
+                            // Check if the ComboBox is still accessible
+                            if (_instance.nsComboBox1.IsHandleCreated)
+                            {
+                                _instance.nsComboBox1.Sorted = false; // Disable sorting temporarily
+                                var currentItems = new HashSet<string>(_instance.nsComboBox1.Items.Cast<string>());
+                                if (!currentItems.SetEquals(newChannels))
+                                {
+                                    _instance.nsComboBox1.Items.Clear();
+                                    foreach (var channel in newChannels)
+                                    {
+                                        _instance.nsComboBox1.Items.Add(channel);
+                                        _instance.nsComboBox1.Sorted = true; // Enable sorting
+                                    }
+                                }
+                            }
+                        }));
+                    }
+
+                    // Wait for a short interval before checking again
+                    await Task.Delay(1000);
+                }
+            });
+        }
+
+
+
+
+
+        public async Task SendMessageToDiscord(string message)
+        {
+            await Task.Run(async () =>
+            {
+            while (true)
+            {
+                string channelName = _instance.nsComboBox1.SelectedItem?.ToString();
+
+            // Call the main method with the obtained channelName
+            await SendMessageToDiscord(message, channelName);
+                    }
+            });
+        }
+
+        public async Task SendMessageToDiscord(string message, string channelName)
+        {
+            await Task.Run(async () =>
+            {
+                if (_client != null && _client.ConnectionState == ConnectionState.Connected)
+                {
+                    // Find the guild (server) where the channel is located
+                    var guild = _client.Guilds.FirstOrDefault(g => g.Channels.Any(c => c.Name == channelName));
+
+                    if (guild != null)
+                    {
+                        // Get the text channel with the specified name
+                        var textChannel = guild.TextChannels.FirstOrDefault(c => c.Name == channelName) as ISocketMessageChannel;
+
+                        if (textChannel != null)
+                        {
+                            // Send the message
+                            await textChannel.SendMessageAsync(message);
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Unable to send message to channel '{channelName}'. Text channel not found.");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Unable to send message to channel '{channelName}'. Guild not found.");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"Unable to send message to channel '{channelName}'. Bot is not connected.");
+                }
+            });
+        }
+
+
+
+
+        public async Task HandleMessageAsync(SocketMessage arg)
         {
 
             var message = arg as SocketUserMessage;
@@ -974,7 +1134,7 @@ namespace Voidbot_Discord_Bot_GUI
 
         // Add more commands as needed
     };
-            ulong GuildID = 000000000000000000;
+            ulong GuildID = 745824494035271750;
             // Register each command with the guild
             foreach (var command in commands)
             {

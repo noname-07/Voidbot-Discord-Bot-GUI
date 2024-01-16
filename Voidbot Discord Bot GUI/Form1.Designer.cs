@@ -1,4 +1,4 @@
-namespace Voidbot_Discord_Bot_GUI
+﻿namespace Voidbot_Discord_Bot_GUI
 {
     partial class Form1
     {
@@ -32,8 +32,6 @@ namespace Voidbot_Discord_Bot_GUI
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             nsTabControl1 = new NSTabControl();
             tabPage1 = new TabPage();
-            linkLabel2 = new LinkLabel();
-            linkLabel1 = new LinkLabel();
             nsGroupBox3 = new NSGroupBox();
             nsLabel17 = new NSLabel();
             nsLabel16 = new NSLabel();
@@ -71,9 +69,9 @@ namespace Voidbot_Discord_Bot_GUI
             nsLabel1 = new NSLabel();
             nsGroupBox4 = new NSGroupBox();
             pictureBox1 = new PictureBox();
-            personalityInfo = new NSTextBox();
             nsLabel19 = new NSLabel();
             nsLabel20 = new NSLabel();
+            nsLabel22 = new NSLabel();
             nsGroupBox5 = new NSGroupBox();
             nsButton5 = new NSButton();
             label2 = new Label();
@@ -82,11 +80,19 @@ namespace Voidbot_Discord_Bot_GUI
             nsButton3 = new NSButton();
             nsButton1 = new NSButton();
             nsButton2 = new NSButton();
+            nsGroupBox8 = new NSGroupBox();
+            linkLabel1 = new LinkLabel();
+            linkLabel2 = new LinkLabel();
             tabPage2 = new TabPage();
             botConsoleView = new TextBox();
             nsGroupBox7 = new NSGroupBox();
             nsButton4 = new NSButton();
             nsLabel18 = new NSLabel();
+            nsGroupBox9 = new NSGroupBox();
+            nsComboBox1 = new NSComboBox();
+            consolebtnSend = new NSButton();
+            commandInputConsoleview = new NSTextBox();
+            nsLabel21 = new NSLabel();
             notifyIcon1 = new NotifyIcon(components);
             nsContextMenu1 = new NSContextMenu();
             openBotPanelToolStripMenuItem = new ToolStripMenuItem();
@@ -100,8 +106,10 @@ namespace Voidbot_Discord_Bot_GUI
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             nsGroupBox5.SuspendLayout();
             nsGroupBox6.SuspendLayout();
+            nsGroupBox8.SuspendLayout();
             tabPage2.SuspendLayout();
             nsGroupBox7.SuspendLayout();
+            nsGroupBox9.SuspendLayout();
             nsContextMenu1.SuspendLayout();
             SuspendLayout();
             // 
@@ -123,46 +131,19 @@ namespace Voidbot_Discord_Bot_GUI
             // tabPage1
             // 
             tabPage1.BackColor = Color.FromArgb(50, 50, 50);
-            tabPage1.Controls.Add(linkLabel2);
-            tabPage1.Controls.Add(linkLabel1);
             tabPage1.Controls.Add(nsGroupBox3);
             tabPage1.Controls.Add(nsGroupBox2);
             tabPage1.Controls.Add(nsGroupBox1);
             tabPage1.Controls.Add(nsGroupBox4);
             tabPage1.Controls.Add(nsGroupBox5);
             tabPage1.Controls.Add(nsGroupBox6);
+            tabPage1.Controls.Add(nsGroupBox8);
             tabPage1.Location = new Point(119, 4);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
             tabPage1.Size = new Size(1033, 457);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Bot Main Page";
-            // 
-            // linkLabel2
-            // 
-            linkLabel2.AutoSize = true;
-            linkLabel2.LinkColor = Color.White;
-            linkLabel2.Location = new Point(921, 436);
-            linkLabel2.Name = "linkLabel2";
-            linkLabel2.Size = new Size(110, 15);
-            linkLabel2.TabIndex = 30;
-            linkLabel2.TabStop = true;
-            linkLabel2.Text = "My GitHub Projects";
-            linkLabel2.VisitedLinkColor = Color.Silver;
-            linkLabel2.LinkClicked += linkLabel2_LinkClicked;
-            // 
-            // linkLabel1
-            // 
-            linkLabel1.AutoSize = true;
-            linkLabel1.LinkColor = Color.White;
-            linkLabel1.Location = new Point(3, 436);
-            linkLabel1.Name = "linkLabel1";
-            linkLabel1.Size = new Size(217, 15);
-            linkLabel1.TabIndex = 33;
-            linkLabel1.TabStop = true;
-            linkLabel1.Text = "Donate or Subscribe via BuyMeACoffee!";
-            linkLabel1.VisitedLinkColor = Color.Silver;
-            linkLabel1.LinkClicked += linkLabel1_LinkClicked;
             // 
             // nsGroupBox3
             // 
@@ -602,9 +583,9 @@ namespace Voidbot_Discord_Bot_GUI
             // 
             nsGroupBox4.BackColor = Color.FromArgb(30, 30, 30);
             nsGroupBox4.Controls.Add(pictureBox1);
-            nsGroupBox4.Controls.Add(personalityInfo);
             nsGroupBox4.Controls.Add(nsLabel19);
             nsGroupBox4.Controls.Add(nsLabel20);
+            nsGroupBox4.Controls.Add(nsLabel22);
             nsGroupBox4.DrawSeperator = false;
             nsGroupBox4.Location = new Point(0, 1);
             nsGroupBox4.Name = "nsGroupBox4";
@@ -616,6 +597,7 @@ namespace Voidbot_Discord_Bot_GUI
             // 
             // pictureBox1
             // 
+            pictureBox1.BorderStyle = BorderStyle.FixedSingle;
             pictureBox1.Image = Properties.Resources._2451296;
             pictureBox1.Location = new Point(6, 3);
             pictureBox1.Name = "pictureBox1";
@@ -624,39 +606,38 @@ namespace Voidbot_Discord_Bot_GUI
             pictureBox1.TabIndex = 33;
             pictureBox1.TabStop = false;
             // 
-            // personalityInfo
-            // 
-            personalityInfo.Location = new Point(104, 45);
-            personalityInfo.MaxLength = 32767;
-            personalityInfo.Multiline = true;
-            personalityInfo.Name = "personalityInfo";
-            personalityInfo.ReadOnly = true;
-            personalityInfo.Size = new Size(430, 41);
-            personalityInfo.TabIndex = 32;
-            personalityInfo.TextAlign = HorizontalAlignment.Left;
-            personalityInfo.UseSystemPasswordChar = false;
-            // 
             // nsLabel19
             // 
             nsLabel19.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            nsLabel19.Location = new Point(179, 5);
+            nsLabel19.Location = new Point(203, 5);
             nsLabel19.Name = "nsLabel19";
-            nsLabel19.Size = new Size(318, 23);
+            nsLabel19.Size = new Size(198, 23);
             nsLabel19.TabIndex = 30;
             nsLabel19.Text = "nsLabel19";
-            nsLabel19.Value1 = "Discord BotName: ";
-            nsLabel19.Value2 = " NO BOT STARTED";
+            nsLabel19.Value1 = "Discord Bot";
+            nsLabel19.Value2 = " Information";
             // 
             // nsLabel20
             // 
-            nsLabel20.Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            nsLabel20.Location = new Point(103, 24);
+            nsLabel20.Font = new Font("Segoe UI Semibold", 11F, FontStyle.Bold);
+            nsLabel20.Location = new Point(103, 26);
             nsLabel20.Name = "nsLabel20";
-            nsLabel20.Size = new Size(94, 19);
+            nsLabel20.Size = new Size(421, 19);
             nsLabel20.TabIndex = 31;
             nsLabel20.Text = "nsLabel20";
-            nsLabel20.Value1 = "Bot Personality: ";
+            nsLabel20.Value1 = "Bot Name: ";
             nsLabel20.Value2 = " ";
+            // 
+            // nsLabel22
+            // 
+            nsLabel22.Font = new Font("Segoe UI Semibold", 11F, FontStyle.Bold);
+            nsLabel22.Location = new Point(103, 47);
+            nsLabel22.Name = "nsLabel22";
+            nsLabel22.Size = new Size(207, 21);
+            nsLabel22.TabIndex = 34;
+            nsLabel22.Text = "nsLabel22";
+            nsLabel22.Value1 = "Online Status: ";
+            nsLabel22.Value2 = " ";
             // 
             // nsGroupBox5
             // 
@@ -749,11 +730,54 @@ namespace Voidbot_Discord_Bot_GUI
             nsButton2.Text = "Run Bot";
             nsButton2.Click += nsButton2_Click;
             // 
+            // nsGroupBox8
+            // 
+            nsGroupBox8.BackColor = Color.FromArgb(30, 30, 30);
+            nsGroupBox8.Controls.Add(linkLabel1);
+            nsGroupBox8.Controls.Add(linkLabel2);
+            nsGroupBox8.DrawSeperator = false;
+            nsGroupBox8.Location = new Point(0, 434);
+            nsGroupBox8.Name = "nsGroupBox8";
+            nsGroupBox8.Size = new Size(1028, 23);
+            nsGroupBox8.SubTitle = "";
+            nsGroupBox8.TabIndex = 39;
+            nsGroupBox8.Text = "nsGroupBox8";
+            nsGroupBox8.Title = "";
+            // 
+            // linkLabel1
+            // 
+            linkLabel1.AutoSize = true;
+            linkLabel1.BackColor = Color.FromArgb(30, 30, 30);
+            linkLabel1.LinkColor = Color.White;
+            linkLabel1.Location = new Point(7, 3);
+            linkLabel1.Name = "linkLabel1";
+            linkLabel1.Size = new Size(217, 15);
+            linkLabel1.TabIndex = 33;
+            linkLabel1.TabStop = true;
+            linkLabel1.Text = "Donate or Subscribe via BuyMeACoffee!";
+            linkLabel1.VisitedLinkColor = Color.Silver;
+            linkLabel1.LinkClicked += linkLabel1_LinkClicked;
+            // 
+            // linkLabel2
+            // 
+            linkLabel2.AutoSize = true;
+            linkLabel2.BackColor = Color.FromArgb(30, 30, 30);
+            linkLabel2.LinkColor = Color.White;
+            linkLabel2.Location = new Point(914, 3);
+            linkLabel2.Name = "linkLabel2";
+            linkLabel2.Size = new Size(110, 15);
+            linkLabel2.TabIndex = 30;
+            linkLabel2.TabStop = true;
+            linkLabel2.Text = "My GitHub Projects";
+            linkLabel2.VisitedLinkColor = Color.Silver;
+            linkLabel2.LinkClicked += linkLabel2_LinkClicked;
+            // 
             // tabPage2
             // 
             tabPage2.BackColor = Color.FromArgb(50, 50, 50);
             tabPage2.Controls.Add(botConsoleView);
             tabPage2.Controls.Add(nsGroupBox7);
+            tabPage2.Controls.Add(nsGroupBox9);
             tabPage2.Location = new Point(119, 4);
             tabPage2.Name = "tabPage2";
             tabPage2.Padding = new Padding(3);
@@ -770,7 +794,7 @@ namespace Voidbot_Discord_Bot_GUI
             botConsoleView.Name = "botConsoleView";
             botConsoleView.ReadOnly = true;
             botConsoleView.ScrollBars = ScrollBars.Vertical;
-            botConsoleView.Size = new Size(1030, 417);
+            botConsoleView.Size = new Size(1030, 332);
             botConsoleView.TabIndex = 32;
             // 
             // nsGroupBox7
@@ -805,6 +829,69 @@ namespace Voidbot_Discord_Bot_GUI
             nsLabel18.Text = "nsLabel18";
             nsLabel18.Value1 = "Bot Console View (Shows Logs, Errors, Disconnects, Etc.)";
             nsLabel18.Value2 = " ";
+            // 
+            // nsGroupBox9
+            // 
+            nsGroupBox9.BackColor = Color.FromArgb(30, 30, 30);
+            nsGroupBox9.Controls.Add(nsComboBox1);
+            nsGroupBox9.Controls.Add(consolebtnSend);
+            nsGroupBox9.Controls.Add(commandInputConsoleview);
+            nsGroupBox9.Controls.Add(nsLabel21);
+            nsGroupBox9.DrawSeperator = false;
+            nsGroupBox9.Location = new Point(3, 382);
+            nsGroupBox9.Name = "nsGroupBox9";
+            nsGroupBox9.Size = new Size(1030, 75);
+            nsGroupBox9.SubTitle = "";
+            nsGroupBox9.TabIndex = 38;
+            nsGroupBox9.Text = "nsGroupBox9";
+            nsGroupBox9.Title = "";
+            // 
+            // nsComboBox1
+            // 
+            nsComboBox1.BackColor = Color.FromArgb(50, 50, 50);
+            nsComboBox1.DrawMode = DrawMode.OwnerDrawFixed;
+            nsComboBox1.DropDownStyle = ComboBoxStyle.DropDownList;
+            nsComboBox1.ForeColor = Color.White;
+            nsComboBox1.FormattingEnabled = true;
+            nsComboBox1.Items.AddRange(new object[] { "main-channel" });
+            nsComboBox1.Location = new Point(5, 35);
+            nsComboBox1.Name = "nsComboBox1";
+            nsComboBox1.Size = new Size(232, 24);
+            nsComboBox1.TabIndex = 38;
+            // 
+            // consolebtnSend
+            // 
+            consolebtnSend.Enabled = false;
+            consolebtnSend.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            consolebtnSend.Location = new Point(945, 5);
+            consolebtnSend.Name = "consolebtnSend";
+            consolebtnSend.Size = new Size(79, 59);
+            consolebtnSend.TabIndex = 37;
+            consolebtnSend.Text = "Send";
+            consolebtnSend.Click += consolebtnSend_Click;
+            // 
+            // commandInputConsoleview
+            // 
+            commandInputConsoleview.Location = new Point(243, 5);
+            commandInputConsoleview.MaxLength = 32767;
+            commandInputConsoleview.Multiline = true;
+            commandInputConsoleview.Name = "commandInputConsoleview";
+            commandInputConsoleview.ReadOnly = false;
+            commandInputConsoleview.Size = new Size(698, 59);
+            commandInputConsoleview.TabIndex = 35;
+            commandInputConsoleview.TextAlign = HorizontalAlignment.Left;
+            commandInputConsoleview.UseSystemPasswordChar = false;
+            // 
+            // nsLabel21
+            // 
+            nsLabel21.Font = new Font("Segoe UI Black", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            nsLabel21.Location = new Point(29, 5);
+            nsLabel21.Name = "nsLabel21";
+            nsLabel21.Size = new Size(190, 24);
+            nsLabel21.TabIndex = 36;
+            nsLabel21.Text = "nsLabel21";
+            nsLabel21.Value1 = "Send Message";
+            nsLabel21.Value2 = "to Channel";
             // 
             // notifyIcon1
             // 
@@ -853,7 +940,6 @@ namespace Voidbot_Discord_Bot_GUI
             Load += Form1_Load;
             nsTabControl1.ResumeLayout(false);
             tabPage1.ResumeLayout(false);
-            tabPage1.PerformLayout();
             nsGroupBox3.ResumeLayout(false);
             nsGroupBox2.ResumeLayout(false);
             nsGroupBox1.ResumeLayout(false);
@@ -862,9 +948,12 @@ namespace Voidbot_Discord_Bot_GUI
             nsGroupBox5.ResumeLayout(false);
             nsGroupBox5.PerformLayout();
             nsGroupBox6.ResumeLayout(false);
+            nsGroupBox8.ResumeLayout(false);
+            nsGroupBox8.PerformLayout();
             tabPage2.ResumeLayout(false);
             tabPage2.PerformLayout();
             nsGroupBox7.ResumeLayout(false);
+            nsGroupBox9.ResumeLayout(false);
             nsContextMenu1.ResumeLayout(false);
             ResumeLayout(false);
         }
@@ -910,7 +999,6 @@ namespace Voidbot_Discord_Bot_GUI
         private NSLabel nsLabel1;
         private NSGroupBox nsGroupBox4;
         private PictureBox pictureBox1;
-        private NSTextBox personalityInfo;
         private NSLabel nsLabel19;
         private NSLabel nsLabel20;
         private NSGroupBox nsGroupBox5;
@@ -924,7 +1012,6 @@ namespace Voidbot_Discord_Bot_GUI
         private LinkLabel linkLabel2;
         private LinkLabel linkLabel1;
         private NSLabel nsLabel18;
-        private TextBox botConsoleView;
         private NSButton nsButton4;
         private NSGroupBox nsGroupBox7;
         private NotifyIcon notifyIcon1;
@@ -932,5 +1019,13 @@ namespace Voidbot_Discord_Bot_GUI
         private NSContextMenu nsContextMenu1;
         private ToolStripMenuItem openBotPanelToolStripMenuItem;
         private ToolStripMenuItem closeBotToolStripMenuItem;
+        private NSGroupBox nsGroupBox8;
+        private NSButton consolebtnSend;
+        private NSLabel nsLabel21;
+        private NSTextBox commandInputConsoleview;
+        private NSGroupBox nsGroupBox9;
+        public NSComboBox nsComboBox1;
+        private NSLabel nsLabel22;
+        public TextBox botConsoleView;
     }
 }

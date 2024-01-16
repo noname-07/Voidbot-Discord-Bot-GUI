@@ -1,20 +1,73 @@
+using Discord;
+using Discord.WebSocket;
 using System.Diagnostics;
+using System.Net;
+using System.Text;
+using System.Web;
 using System.Windows.Forms;
+using TwitchLib.Communication.Interfaces;
+using Voidbot_Discord_Bot_GUI.Properties;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Voidbot_Discord_Bot_GUI
 {
     public partial class Form1 : Form
     {
+        private static MainProgram _instance;
+
+        public static MainProgram Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = new MainProgram();
+                }
+                return _instance;
+            }
+        }
         MainProgram botInstance = new MainProgram();  // Create an instance of MainProgram
         private bool isFormVisible = true;
+        DiscordSocketClient client;
+
         public Form1()
         {
             InitializeComponent();
-
+            // Access _client through the property
+            DiscordSocketClient client = botInstance.DiscordClient;
 
             // Subscribe to the BotDisconnected event
             botInstance.BotDisconnected += OnBotDisconnected;
             botInstance.LogReceived += LogMessageReceived;
+            botInstance.BotConnected += OnBotConnected;
+            
+        }
+        public class TextBoxWriter : TextWriter
+        {
+            private System.Windows.Forms.TextBox textBox;
+
+            public TextBoxWriter(System.Windows.Forms.TextBox textBox)
+            {
+                this.textBox = textBox;
+            }
+
+            public override Encoding Encoding => Encoding.UTF8;
+
+            public override void Write(char value)
+            {
+                if (textBox.InvokeRequired)
+                {
+                    textBox.Invoke(new Action(() =>
+                    {
+                        textBox.AppendText(value.ToString());
+                    }));
+                }
+                else
+                {
+                    textBox.AppendText(value.ToString());
+                }
+            }
+
         }
         // Method to handle received log messages
         private void LogMessageReceived(string logMessage)
@@ -30,9 +83,228 @@ namespace Voidbot_Discord_Bot_GUI
             Invoke(new Action(() =>
             {
                 label2.Text = message;
-                label2.ForeColor = Color.Red;
+                label2.ForeColor = System.Drawing.Color.Red;
             }));
 
+        }
+        private async Task Outputcmd()
+        {
+            Task.Run(async () =>
+            {
+                while (true)
+                {
+                    if (botInstance.DiscordClient != null)
+                    {
+                        if (botConsoleView.InvokeRequired)
+                        {
+                            botConsoleView.Invoke((MethodInvoker)delegate
+                            {
+                                TextBoxWriter writer = new TextBoxWriter(botConsoleView);
+                                Console.SetOut(writer);
+                            });
+                        }
+                        else
+                        {
+                            TextBoxWriter writer = new TextBoxWriter(botConsoleView);
+                            Console.SetOut(writer);
+                        }
+                    }
+
+                    // Check if the bot is stopped and exit the loop
+                    if (botInstance.DiscordClient == null || botInstance.DiscordClient.ConnectionState == ConnectionState.Disconnected)
+                    {
+                        break;
+                    }
+
+                    // Wait for a short interval before checking again
+                    await Task.Delay(1500);
+                }
+            });
+           
+        }
+        private async Task Getbotdeets()
+        {
+            
+            Task.Run(async () =>
+            {
+                while (true)
+                {
+                    if (botInstance.DiscordClient != null)
+                    {
+                        if (botInstance.DiscordClient.ConnectionState == ConnectionState.Connected)
+                        {
+                            if (label2.InvokeRequired)
+                            {
+                                label2.Invoke((MethodInvoker)delegate
+                                {
+                                    label2.Text = " Bot Connected...";
+                                });
+                            }
+                            else
+                            {
+                                label2.Text = " Bot Connected...";
+                            }
+                        }
+                        else
+                        {
+                            if (label2.InvokeRequired)
+                            {
+                                label2.Invoke((MethodInvoker)delegate
+                                {
+                                    label2.Text = " Not Connected...";
+                                });
+                            }
+                            else
+                            {
+                                label2.Text = " Not Connected...";
+                            }
+                        }
+                    }
+
+                    // Check if the bot is stopped and exit the loop
+                    if (botInstance.DiscordClient == null || botInstance.DiscordClient.ConnectionState == ConnectionState.Disconnected)
+                    {
+                        break;
+                    }
+
+                    // Wait for a short interval before checking again
+                    await Task.Delay(3000);
+                }
+            });
+        }
+            private async Task GetBotName()
+        {
+            Task.Run(async () =>
+            {
+                while (true)
+                {
+                    if (botInstance.DiscordClient != null)
+                    {
+                        if (nsLabel20.InvokeRequired)
+                        {
+                            nsLabel20.Invoke((MethodInvoker)delegate
+                            {
+                                nsLabel20.Value2 = " " + botInstance.DiscordClient.CurrentUser?.Username;
+                            });
+                        }
+                        else
+                        {
+                            nsLabel20.Value2 = " " + botInstance.DiscordClient.CurrentUser?.Username;
+                        }
+                    }
+
+                    // Check if the bot is stopped and exit the loop
+                    if (botInstance.DiscordClient == null || botInstance.DiscordClient.ConnectionState == ConnectionState.Disconnected)
+                    {
+                        break;
+                    }
+
+                    // Wait for a short interval before checking again
+                    await Task.Delay(3000);
+                }
+            });
+        }
+        private async Task Activatesend()
+        {
+            Task.Run(async () =>
+            {
+                while (true)
+        {
+            if (consolebtnSend.InvokeRequired)
+            {
+                consolebtnSend.Invoke((MethodInvoker)delegate
+                {
+                    // Check if the bot is connected before enabling the button
+                    consolebtnSend.Enabled = botInstance.DiscordClient != null &&
+                                              botInstance.DiscordClient.ConnectionState == ConnectionState.Connected;
+                });
+            }
+            else
+            {
+                // Check if the bot is connected before enabling the button
+                consolebtnSend.Enabled = botInstance.DiscordClient != null &&
+                                          botInstance.DiscordClient.ConnectionState == ConnectionState.Connected;
+            }
+
+            // Check if the bot is stopped and exit the loop
+            if (botInstance.DiscordClient == null || botInstance.DiscordClient.ConnectionState == ConnectionState.Disconnected)
+            {
+                break;
+            }
+
+            // Wait for a short interval before checking again
+            await Task.Delay(1000);
+                }
+            });
+        }
+
+        private async Task GetBotStatus()
+        {
+            Task.Run(async () =>
+            {
+                while (true)
+                {
+                    if (botInstance.DiscordClient != null)
+                    {
+                        if (nsLabel22.InvokeRequired)
+                        {
+                            nsLabel22.Invoke((MethodInvoker)delegate
+                            {
+                                nsLabel22.Value2 = " " + botInstance.DiscordClient.CurrentUser?.Status;
+                            });
+                        }
+                        else
+                        {
+                            nsLabel22.Value2 = " " + botInstance.DiscordClient.CurrentUser?.Status;
+                        }
+                    }
+
+                    // Check if the bot is stopped and exit the loop
+                    if (botInstance.DiscordClient == null || botInstance.DiscordClient.ConnectionState == ConnectionState.Disconnected)
+                    {
+                        break;
+                    }
+
+                    // Wait for a short interval before checking again
+                    await Task.Delay(2000);
+                }
+            });
+        }
+        private async Task OnBotConnected()
+        {
+       
+                botInstance.SetForm1Instance(this); // Pass the instance of Form1 to MainProgram
+              await botInstance.PopulateComboBoxWithChannels();
+            // Get the bot's avatar URL
+            string avatarUrl = botInstance.DiscordClient.CurrentUser.GetAvatarUrl(ImageFormat.Auto, 256);
+           
+            // Load the avatar into PictureBox1
+            await LoadAvatarIntoPictureBox(avatarUrl);
+            await Getbotdeets();
+            await GetBotName();
+            await GetBotStatus();
+            await Outputcmd();
+            await Activatesend();
+
+
+        }
+        private async Task LoadAvatarIntoPictureBox(string avatarUrl)
+        {
+            // Load the avatar into PictureBox1
+            if (!string.IsNullOrEmpty(avatarUrl))
+            {
+                // You can use a library like WebClient or HttpClient to download the image
+                using (WebClient client = new WebClient())
+                {
+                    byte[] imageData = client.DownloadData(avatarUrl);
+
+                    using (MemoryStream ms = new MemoryStream(imageData))
+                    {
+                        System.Drawing.Image avatarImage = System.Drawing.Image.FromStream(ms);
+                        pictureBox1.Image = avatarImage;
+                    }
+                }
+            }
         }
         private void nsButton1_Click(object sender, EventArgs e)
         {
@@ -71,8 +343,8 @@ namespace Voidbot_Discord_Bot_GUI
             {
                 nsButton2.Enabled = false;
                 nsButton1.Enabled = false;
-                nsLabel19.Value2 = UserSettings(Application.StartupPath + userfile, "BotNickname");
-                personalityInfo.Text = UserSettings(Application.StartupPath + userfile, "BotPersonality");
+               
+           
                 GptApiKey.Enabled = false;
                 YoutubeAPIKey.Enabled = false;
                 YoutubeAppName.Enabled = false;
@@ -89,8 +361,8 @@ namespace Voidbot_Discord_Bot_GUI
                 BotPersonality.Enabled = false;
                 Invoke(new Action(() =>
                 {
-                    label2.Text = " Bot Running!";
-                    label2.ForeColor = Color.LimeGreen;
+                    label2.Text = " Connecting...";
+                    label2.ForeColor = System.Drawing.Color.LimeGreen;
                 }));
 
 
@@ -110,8 +382,9 @@ namespace Voidbot_Discord_Bot_GUI
             {
                 nsButton2.Enabled = true;
                 nsButton1.Enabled = true;
-                nsLabel19.Value2 = " BOT NOT STARTED";
-                personalityInfo.Text = "";
+                pictureBox1.Image = Resources._2451296;
+                nsLabel22.Value2 = " Offline";
+                nsLabel20.Value2 = " ";
                 GptApiKey.Enabled = true;
                 YoutubeAPIKey.Enabled = true;
                 YoutubeAppName.Enabled = true;
@@ -126,10 +399,13 @@ namespace Voidbot_Discord_Bot_GUI
                 StreamerRole.Enabled = true;
                 BotNickname.Enabled = true;
                 BotPersonality.Enabled = true;
+                // Restart or recreate the botInstance
+               
+
                 Invoke(new Action(() =>
                 {
                     label2.Text = " Not Connected...";
-                    label2.ForeColor = Color.Red;
+                    label2.ForeColor = System.Drawing.Color.Red;
                 }));
                 await botInstance.StopBot();
             }
@@ -287,13 +563,15 @@ namespace Voidbot_Discord_Bot_GUI
             }
 
         }
+
+
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (e.CloseReason == CloseReason.UserClosing)
             {
-                e.Cancel = true;  
+                e.Cancel = true;
 
-              
+
                 this.WindowState = FormWindowState.Minimized;
                 notifyIcon1.Visible = true;
                 this.Hide();
@@ -361,7 +639,7 @@ namespace Voidbot_Discord_Bot_GUI
         }
         private void nsButton5_Click(object sender, EventArgs e)
         {
-         
+
             this.WindowState = FormWindowState.Minimized;
             notifyIcon1.Visible = true;
             this.Hide();
@@ -371,13 +649,13 @@ namespace Voidbot_Discord_Bot_GUI
 
         private void notifyIcon1_MouseEnter(object sender, EventArgs e)
         {
-           
+
         }
         private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
             {
-           
+
                 this.Show();
                 this.WindowState = FormWindowState.Normal;
 
@@ -388,17 +666,17 @@ namespace Voidbot_Discord_Bot_GUI
 
         private void openBotPanelToolStripMenuItem_Click(object sender, EventArgs e)
         {
-         
+
             this.Show();
             this.WindowState = FormWindowState.Normal;
 
-         
+
             notifyIcon1.Visible = false;
         }
 
         private void closeBotToolStripMenuItem_Click(object sender, EventArgs e)
         {
-          
+
             Application.Exit();
         }
         private void SetNotifyIconTooltip()
@@ -408,18 +686,37 @@ namespace Voidbot_Discord_Bot_GUI
 
             string title = string.IsNullOrEmpty(botNickname) ? "VoidBot Discord Bot Running in Tray: Waiting..." : botNickname;
 
-            
-       
+
+
             notifyIcon1.Text = title;
             notifyIcon1.ShowBalloonTip(1000, title, title, ToolTipIcon.Info);
         }
 
         private void notifyIcon1_MouseMove(object sender, MouseEventArgs e)
         {
-           
+
             SetNotifyIconTooltip();
-            
+
         }
+
+        private async void consolebtnSend_Click(object sender, EventArgs e)
+        {
+            // Get the message from the TextBox
+            string messageToSend = commandInputConsoleview.Text;
+            string channelName = nsComboBox1.Text;
+
+            // send message to "main-channel" (Change this to the channel you'd like)
+            await botInstance.SendMessageToDiscord(messageToSend, channelName);
+            commandInputConsoleview.Text = null;
+        }
+
+        //private async void nsButton6_Click(object sender, EventArgs e)
+        //{
+         
+        //    botInstance.SetForm1Instance(this); // Pass the instance of Form1 to MainProgram
+        //    await botInstance.PopulateComboBoxWithChannels();
+        //}
     }
 
 }
+//dotnet publish -r win-x64 /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true --output "C:\Users\Ken\Desktop\TotK Tools Mod Manager" <======================== Publish single file options powershell commands

@@ -7,11 +7,16 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationIcon>2451296.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove="Resources\2451296.png" />
     <None Remove="UserCFG.ini" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="2451296.ico" />
   </ItemGroup>
 
   <ItemGroup>

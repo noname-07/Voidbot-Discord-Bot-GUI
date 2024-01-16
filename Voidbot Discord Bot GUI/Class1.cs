@@ -447,7 +447,13 @@ namespace Voidbot_Discord_Bot_GUI
                 }
             }
         }
-
+        public void AppendText(string text)
+        {
+            if (Base != null)
+            {
+                Base.AppendText(text);
+            }
+        }
         public int _MaxLength = 32767;
         public int MaxLength
         {

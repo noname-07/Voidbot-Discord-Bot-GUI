@@ -10,7 +10,7 @@ namespace Voidbot_Discord_Bot_GUI
 
 
         [DllImport("kernel32", EntryPoint = "GetPrivateProfileStringA", CharSet = CharSet.Ansi)]
-        private static extern int GetPrivateProfileString(string lpApplicationName, string lpSchlüsselName, string lpDefault, string lpReturnedString, int nSize, string lpFileName);
+        private static extern int GetPrivateProfileString(string lpApplicationName, string lpKeyName, string lpDefault, string lpReturnedString, int nSize, string lpFileName);
 
         [DllImport("kernel32", EntryPoint = "WritePrivateProfileStringA", CharSet = CharSet.Ansi)]
         private static extern int WritePrivateProfileString(string lpApplicationName, string lpKeyName, string lpString, string lpFileName);
