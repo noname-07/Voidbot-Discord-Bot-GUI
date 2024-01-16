@@ -839,7 +839,7 @@
             // 
             // nsButton4
             // 
-            nsButton4.Location = new Point(879, 6);
+            nsButton4.Location = new Point(880, 6);
             nsButton4.Name = "nsButton4";
             nsButton4.Size = new Size(138, 23);
             nsButton4.TabIndex = 33;

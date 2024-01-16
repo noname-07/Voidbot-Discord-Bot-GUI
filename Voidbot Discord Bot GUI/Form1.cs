@@ -632,6 +632,8 @@ namespace Voidbot_Discord_Bot_GUI
 
             // Set the UseSystemPasswordChar property for StreamerRole TextBox
             StreamerRole.UseSystemPasswordChar = !showPassword;
+            // Set the UseSystemPasswordChar property for ServerID TextBox
+            ServerID.UseSystemPasswordChar = !showPassword;
         }
 
         private void linkLabel2_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -746,3 +748,4 @@ namespace Voidbot_Discord_Bot_GUI
     }
 
 }
+//dotnet publish -r win-x64 /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true --output "C:\Users\Ken\Desktop\TotK Tools Mod Manager" <======================== Publish single file options powershell commands

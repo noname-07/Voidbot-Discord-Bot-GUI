@@ -390,18 +390,13 @@ public class MainProgram
             Console.WriteLine($"Received message: {message.Content}");
             int argPos = 0;
             string userfile = @"\UserCFG.ini";
-            string botNickname = UserSettings(startupPath + userfile, "BotNickname"); // Gets the bots nickname defined in UserCFG.ini
+            string botNickname = UserSettings(startupPath + userfile, "BotNickname");
 
             if (message.MentionedUsers.Any(user => user.Id == _client.CurrentUser.Id) || message.Content.Contains(botNickname, StringComparison.OrdinalIgnoreCase) || message.Content.ToLower().StartsWith("/ask"))
             {
                 string query = message.Content.Replace(botNickname, "", StringComparison.OrdinalIgnoreCase).Trim();
-                // Add logging for debugging
-                // Console.WriteLine($"Processing query: {query}");
-                string response = await Task.Run(() => GetOpenAiResponse(query)).ConfigureAwait(false);
-                // Add logging for debugging
-                //Console.WriteLine($"OpenAI Response: {response}");
+                string response = await GetOpenAiResponse(query);
                 await message.Channel.SendMessageAsync(response);
-
                 Console.WriteLine("Response sent");
             }
             if (message.Content.ToLower().StartsWith("/roll"))
@@ -987,37 +982,47 @@ public class MainProgram
 
             if (message.Content.ToLower().StartsWith("/purge") && message.Author is SocketGuildUser authPurge)
             {
-                // Check if the author has the "Administrator" permission
+                // Check if the author has the "Administrator" permission or a specific moderator role
                 string userfile2 = @"\UserCFG.ini";
                 string roleString = UserSettings(startupPath + userfile2, "ModeratorRole");
+
                 if (ulong.TryParse(roleString, out ulong xForceRole))
                 {
                     var isAdmin = (message.Author as SocketGuildUser)?.GuildPermissions.Administrator ?? false;
                     var hasSpecificRole = (message.Author as SocketGuildUser)?.Roles.Any(r => r.Id == xForceRole) ?? false;
+
                     if (isAdmin || hasSpecificRole)
                     {
-                        // Get the number of messages to purge (replace 100 with the desired number)
-                        int messagesToPurge = 100;
+                        // Split the message content to get the number of messages to purge
+                        string[] purgeArgs = message.Content.Split(' ');
 
-                        // Delete the original command message
-                        await message.DeleteAsync();
-
-                        // Get the channel
-                        var channel = message.Channel as SocketTextChannel;
-
-                        // Check if the channel is not null
-                        if (channel != null)
+                        if (purgeArgs.Length == 2 && int.TryParse(purgeArgs[1], out int messagesToPurge))
                         {
-                            // Fetch messages and filter out those older than two weeks
-                            var messages = await channel.GetMessagesAsync(messagesToPurge).FlattenAsync();
-                            var messagesToDelete = messages.Where(m => (DateTimeOffset.Now - m.CreatedAt).TotalDays < 14);
+                            // Delete the original command message
+                            await message.DeleteAsync();
 
-                            // Delete the filtered messages
-                            await channel.DeleteMessagesAsync(messagesToDelete);
+                            // Get the channel
+                            var channel = message.Channel as SocketTextChannel;
 
-                            // Inform about the purge
-                            await channel.SendMessageAsync($"Purged {messagesToDelete.Count()} messages.");
-                            Console.WriteLine("Successfully " + $"Purged {messagesToDelete.Count()} messages.");
+                            // Check if the channel is not null
+                            if (channel != null)
+                            {
+                                // Fetch messages and filter out those older than two weeks
+                                var messages = await channel.GetMessagesAsync(messagesToPurge).FlattenAsync();
+                                var messagesToDelete = messages.Where(m => (DateTimeOffset.Now - m.CreatedAt).TotalDays < 14);
+
+                                // Delete the filtered messages
+                                await channel.DeleteMessagesAsync(messagesToDelete);
+
+                                // Inform about the purge
+                                await channel.SendMessageAsync($"Purged {messagesToDelete.Count()} messages.");
+                                Console.WriteLine($"Successfully Purged {messagesToDelete.Count()} messages.");
+                            }
+                        }
+                        else
+                        {
+                            // Inform the user about the correct command usage
+                            await message.Channel.SendMessageAsync("Please use the command as `/purge <number of messages>`.");
                         }
                     }
                     else
@@ -1028,9 +1033,10 @@ public class MainProgram
                 }
                 else
                 {
-                    Console.WriteLine("Error: Could not get ModeratorRole ID(ulong) from config file!");
+                    Console.WriteLine("Error: Could not get ModeratorRole ID (ulong) from config file!");
                 }
             }
+
 
 
             if (message.Content.ToLower().StartsWith("/updatemsg"))
@@ -1243,46 +1249,36 @@ public class MainProgram
         }
         public async Task<string> GetOpenAiResponse(string query)
         {
-
             using (HttpClient client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {GptApiKey}");
 
                 string prompt = $"User: {query}\nChatGPT:";
-                // Create message objects for the system and user messages
                 var messages = new List<object>
         {
             new { role = "system", content = $"\"{contentstr}\"" },
             new { role = "user", content = query }
         };
-                // Create a JSON object for the request payload
+
                 var requestBody = new
                 {
-
                     model = "gpt-3.5-turbo",
                     messages = messages,
                     max_tokens = 200
                 };
 
-                // Serialize the JSON object to a string
                 var jsonContent = JsonConvert.SerializeObject(requestBody);
-
-                // Use StringContent with the correct content type
                 var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
                 var response = await client.PostAsync("https://api.openai.com/v1/chat/completions", content);
 
-
                 if (response.IsSuccessStatusCode)
                 {
                     string result = await response.Content.ReadAsStringAsync();
-
-                    // Parsing JSON to extract the response text
                     var jsonResponse = JObject.Parse(result);
                     var choices = jsonResponse["choices"];
                     var firstChoice = choices.FirstOrDefault();
-                    var text = firstChoice["message"]["content"].ToString();
-
+                    var text = firstChoice?["message"]?["content"]?.ToString();
                     return text ?? "Unable to parse OpenAI response.";
                 }
                 else
@@ -1290,12 +1286,9 @@ public class MainProgram
                     Console.WriteLine($"Error communicating with OpenAI API. Status code: {response.StatusCode}");
                     string errorContent = await response.Content.ReadAsStringAsync();
                     Console.WriteLine($"Error content: {errorContent}");
-
                     return "Error communicating with OpenAI API.";
                 }
             }
-
-
         }
     }
 }
