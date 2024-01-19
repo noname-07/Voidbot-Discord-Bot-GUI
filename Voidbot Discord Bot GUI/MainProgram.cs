@@ -50,6 +50,7 @@ namespace Voidbot_Discord_Bot_GUI
         string contentstr;
         string BotNickname;
         public bool isBotRunning = false;
+        private bool shouldReconnect = true;
         // Define an event for log messages
         public event Action<string> LogReceived;
         public event Action<string> MessageReception;
@@ -104,9 +105,9 @@ namespace Voidbot_Discord_Bot_GUI
             if (!isBotRunning)
             {
                 isBotRunning = true;
-                // Start the bot
+                shouldReconnect = true; // Allow reconnection attempts
+                                        // Start the bot
                 await RunBotAsync();
-
             }
         }
 
@@ -115,32 +116,41 @@ namespace Voidbot_Discord_Bot_GUI
             if (isBotRunning)
             {
                 isBotRunning = false;
-                // Stop the bot
+                shouldReconnect = false; // Prevent immediate reconnection
+                                         // Stop the bot
                 await DisconnectBot();
-
-
             }
         }
 
+
         public async Task DisconnectBot()
         {
-            // Additional cleanup tasks can be added here
-
-            if (_client != null)
+            try
             {
-                await _client.StopAsync();
-                await _client.LogoutAsync();
+                shouldReconnect = false; // Prevent immediate reconnection
+                // Additional cleanup tasks can be added here
+                if (_client != null)
+                {
 
-                _client.Dispose();
-                _client = null;
-                DiscordClient = null;
-                _instance = null;
+                    await _client.StopAsync();
+                    await _client.LogoutAsync();
+
+                    _client.Dispose();
+                    _client = null;
+                    DiscordClient = null;
+                }
             }
-
+            catch (Exception ex)
+            {
+                // Handle exceptions (log or display the error)
+                Console.WriteLine($"Error during bot disconnection: {ex.Message}");
+            }
 
             // Set _instance to null or perform any additional cleanup
             _instance = null;
         }
+
+
         public async Task RunBotAsync()
         {
 
@@ -169,11 +179,13 @@ namespace Voidbot_Discord_Bot_GUI
 
                 _client.Disconnected += async (exception) =>
                 {
-                    Console.WriteLine($"Disconnected from Discord, Attempting to reconnect shortly. Error: {exception?.Message}");
+                    Console.WriteLine($"Disconnected from Discord. Error: {exception?.Message}");
 
-
-                    await Task.Delay(new Random().Next(3, 5) * 1000); // Add a delay to avoid rapid reconnection attempts, and that Discord Rest Limit xD
-                    await StartBotAsync();
+                    if (shouldReconnect)
+                    {
+                        await Task.Delay(new Random().Next(3, 5) * 1000);
+                        await StartBotAsync();
+                    }
                 };
 
                 // Start checking the connection state in a separate task
@@ -356,15 +368,15 @@ namespace Voidbot_Discord_Bot_GUI
                             // Get the ban list for the guild
                             var bans = await GetBanList(GuildID);
 
-                            if (_instance.nsListView1?.IsHandleCreated == true)
+                            if (bans != null && _instance.nsListView1?.IsHandleCreated == true)
                             {
                                 _instance.nsListView1.SuspendLayout();
 
                                 foreach (var ban in bans)
                                 {
-
                                     var nsListViewItem = _instance.nsListView1._Items.FirstOrDefault(item =>
                                        item.Text == (ban.User.GlobalName ?? ban.User.Username));
+
                                     if (nsListViewItem == null)
                                     {
                                         // Create a new item only if it doesn't exist
@@ -399,6 +411,7 @@ namespace Voidbot_Discord_Bot_GUI
                 }
             });
         }
+
 
 
 

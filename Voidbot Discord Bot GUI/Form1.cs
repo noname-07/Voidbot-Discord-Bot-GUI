@@ -149,41 +149,23 @@ namespace Voidbot_Discord_Bot_GUI
             //Get bot connection deets, in seperate thread, avoids cross-thread issues
             Task.Run(async () =>
             {
+
                 while (true)
                 {
                     if (botInstance.DiscordClient != null)
                     {
-                        if (botInstance.DiscordClient.ConnectionState == ConnectionState.Connected)
+                        ConnectionState currentState = botInstance.DiscordClient.ConnectionState;
+
+                        if (label2.InvokeRequired)
                         {
-                            if (label2.InvokeRequired)
+                            label2.Invoke((MethodInvoker)delegate
                             {
-                                label2.Invoke((MethodInvoker)delegate
-                                {
-                                    label2.Text = " Bot Connected...";
-                                    label2.ForeColor = System.Drawing.Color.LimeGreen;
-                                });
-                            }
-                            else
-                            {
-                                label2.Text = " Bot Connected...";
-                                label2.ForeColor = System.Drawing.Color.LimeGreen;
-                            }
+                                UpdateLabel(currentState);
+                            });
                         }
                         else
                         {
-                            if (label2.InvokeRequired)
-                            {
-                                label2.Invoke((MethodInvoker)delegate
-                                {
-                                    label2.Text = " Not Connected...";
-                                    label2.ForeColor = System.Drawing.Color.DarkRed;
-                                });
-                            }
-                            else
-                            {
-                                label2.Text = " Not Connected...";
-                                label2.ForeColor = System.Drawing.Color.DarkRed;
-                            }
+                            UpdateLabel(currentState);
                         }
                     }
 
@@ -197,6 +179,37 @@ namespace Voidbot_Discord_Bot_GUI
                     await Task.Delay(3000);
                 }
             });
+        }
+        void UpdateLabel(ConnectionState currentState)
+        {
+            if (currentState == ConnectionState.Connected)
+            {
+                label2.Text = GetConnectionStatusMessage(botInstance.DiscordClient.ConnectionState);
+
+                label2.ForeColor = System.Drawing.Color.LimeGreen;
+            }
+            else
+            {
+                label2.Text = GetConnectionStatusMessage(botInstance.DiscordClient.ConnectionState);
+
+                label2.ForeColor = System.Drawing.Color.DarkRed;
+            }
+        }
+        private string GetConnectionStatusMessage(ConnectionState connectionState)
+        {
+            switch (connectionState)
+            {
+                case ConnectionState.Connected:
+                    return "Bot Connected...";
+                case ConnectionState.Connecting:
+                    return "Connecting...";
+                case ConnectionState.Disconnected:
+                    return "Not Connected...";
+                case ConnectionState.Disconnecting:
+                    return "Reconnecting...";
+                default:
+                    return "Unknown Connection State...";
+            }
         }
         //Get bot name, in seperate thread, avoids cross-thread issues
         private async Task GetBotName()
@@ -424,7 +437,7 @@ namespace Voidbot_Discord_Bot_GUI
 
                 Invoke(new Action(() =>
                 {
-                    label2.Text = " Not Connected...";
+                    label2.Text = " Disconnected...";
                     label2.ForeColor = System.Drawing.Color.Red;
                     nsButton2.Enabled = true;
                     nsButton1.Enabled = true;
@@ -836,7 +849,7 @@ namespace Voidbot_Discord_Bot_GUI
                 return;
             }
 
-            Console.WriteLine($"Subitem Count: {nsListView2._Items.Count}");
+            //Console.WriteLine($"Subitem Count: {nsListView2._Items.Count}");
             if (nsListView2.SelectedItems != null && nsListView2.Items.Length > 0)
             {
                 var selectedItem = nsListView2.SelectedItems[0];
