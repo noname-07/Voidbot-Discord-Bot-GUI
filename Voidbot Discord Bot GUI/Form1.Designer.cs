@@ -91,10 +91,42 @@
             nsButton4 = new NSButton();
             nsLabel18 = new NSLabel();
             nsGroupBox9 = new NSGroupBox();
+            nsComboBox2 = new NSComboBox();
+            nsButton11 = new NSButton();
             nsComboBox1 = new NSComboBox();
             consolebtnSend = new NSButton();
             commandInputConsoleview = new NSTextBox();
             nsLabel21 = new NSLabel();
+            tabPage3 = new TabPage();
+            nsGroupBox10 = new NSGroupBox();
+            nsLabel28 = new NSLabel();
+            nsGroupBox12 = new NSGroupBox();
+            nsButton12 = new NSButton();
+            nsTextBox2 = new NSTextBox();
+            label8 = new Label();
+            label9 = new Label();
+            label10 = new Label();
+            nsLabel27 = new NSLabel();
+            nsButton9 = new NSButton();
+            nsButton10 = new NSButton();
+            label11 = new Label();
+            label12 = new Label();
+            nsGroupBox11 = new NSGroupBox();
+            nsTextBox1 = new NSTextBox();
+            label5 = new Label();
+            label4 = new Label();
+            label3 = new Label();
+            nsLabel24 = new NSLabel();
+            nsButton8 = new NSButton();
+            nsButton7 = new NSButton();
+            label7 = new Label();
+            label6 = new Label();
+            nsLabel26 = new NSLabel();
+            nsListView2 = new NSListView();
+            nsListView1 = new NSListView();
+            nsLabel25 = new NSLabel();
+            chatLog = new NSTextBox();
+            nsButton6 = new NSButton();
             notifyIcon1 = new NotifyIcon(components);
             nsContextMenu1 = new NSContextMenu();
             openBotPanelToolStripMenuItem = new ToolStripMenuItem();
@@ -112,6 +144,10 @@
             tabPage2.SuspendLayout();
             nsGroupBox7.SuspendLayout();
             nsGroupBox9.SuspendLayout();
+            tabPage3.SuspendLayout();
+            nsGroupBox10.SuspendLayout();
+            nsGroupBox12.SuspendLayout();
+            nsGroupBox11.SuspendLayout();
             nsContextMenu1.SuspendLayout();
             SuspendLayout();
             // 
@@ -120,6 +156,7 @@
             nsTabControl1.Alignment = TabAlignment.Left;
             nsTabControl1.Controls.Add(tabPage1);
             nsTabControl1.Controls.Add(tabPage2);
+            nsTabControl1.Controls.Add(tabPage3);
             nsTabControl1.DrawMode = TabDrawMode.OwnerDrawFixed;
             nsTabControl1.ItemSize = new Size(28, 115);
             nsTabControl1.Location = new Point(1, -3);
@@ -860,6 +897,8 @@
             // nsGroupBox9
             // 
             nsGroupBox9.BackColor = Color.FromArgb(30, 30, 30);
+            nsGroupBox9.Controls.Add(nsComboBox2);
+            nsGroupBox9.Controls.Add(nsButton11);
             nsGroupBox9.Controls.Add(nsComboBox1);
             nsGroupBox9.Controls.Add(consolebtnSend);
             nsGroupBox9.Controls.Add(commandInputConsoleview);
@@ -872,6 +911,30 @@
             nsGroupBox9.TabIndex = 38;
             nsGroupBox9.Text = "nsGroupBox9";
             nsGroupBox9.Title = "";
+            // 
+            // nsComboBox2
+            // 
+            nsComboBox2.BackColor = Color.FromArgb(50, 50, 50);
+            nsComboBox2.DrawMode = DrawMode.OwnerDrawFixed;
+            nsComboBox2.DropDownStyle = ComboBoxStyle.DropDownList;
+            nsComboBox2.ForeColor = Color.White;
+            nsComboBox2.FormattingEnabled = true;
+            nsComboBox2.Items.AddRange(new object[] { "1", "5", "10", "20", "30", "40", "50", "60", "70", "80", "90", "100", "200", "300", "400", "500" });
+            nsComboBox2.Location = new Point(5, 65);
+            nsComboBox2.Name = "nsComboBox2";
+            nsComboBox2.Size = new Size(90, 24);
+            nsComboBox2.TabIndex = 40;
+            // 
+            // nsButton11
+            // 
+            nsButton11.Enabled = false;
+            nsButton11.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            nsButton11.Location = new Point(101, 63);
+            nsButton11.Name = "nsButton11";
+            nsButton11.Size = new Size(136, 29);
+            nsButton11.TabIndex = 39;
+            nsButton11.Text = "Purge Messages";
+            nsButton11.Click += nsButton11_Click;
             // 
             // nsComboBox1
             // 
@@ -912,13 +975,356 @@
             // nsLabel21
             // 
             nsLabel21.Font = new Font("Segoe UI Black", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            nsLabel21.Location = new Point(29, 5);
+            nsLabel21.Location = new Point(51, 5);
             nsLabel21.Name = "nsLabel21";
-            nsLabel21.Size = new Size(190, 24);
+            nsLabel21.Size = new Size(145, 24);
             nsLabel21.TabIndex = 36;
             nsLabel21.Text = "nsLabel21";
-            nsLabel21.Value1 = "Send Message";
-            nsLabel21.Value2 = "to Channel";
+            nsLabel21.Value1 = "Channel";
+            nsLabel21.Value2 = " Selection";
+            // 
+            // tabPage3
+            // 
+            tabPage3.BackColor = Color.FromArgb(50, 50, 50);
+            tabPage3.Controls.Add(nsGroupBox10);
+            tabPage3.Location = new Point(119, 4);
+            tabPage3.Name = "tabPage3";
+            tabPage3.Size = new Size(1033, 483);
+            tabPage3.TabIndex = 2;
+            tabPage3.Text = "Moderation Panel";
+            // 
+            // nsGroupBox10
+            // 
+            nsGroupBox10.BackColor = Color.FromArgb(30, 30, 30);
+            nsGroupBox10.Controls.Add(nsLabel28);
+            nsGroupBox10.Controls.Add(nsGroupBox12);
+            nsGroupBox10.Controls.Add(nsGroupBox11);
+            nsGroupBox10.Controls.Add(nsLabel26);
+            nsGroupBox10.Controls.Add(nsListView2);
+            nsGroupBox10.Controls.Add(nsListView1);
+            nsGroupBox10.Controls.Add(nsLabel25);
+            nsGroupBox10.Controls.Add(chatLog);
+            nsGroupBox10.Controls.Add(nsButton6);
+            nsGroupBox10.DrawSeperator = false;
+            nsGroupBox10.Location = new Point(3, 3);
+            nsGroupBox10.Name = "nsGroupBox10";
+            nsGroupBox10.Size = new Size(1027, 480);
+            nsGroupBox10.SubTitle = "";
+            nsGroupBox10.TabIndex = 38;
+            nsGroupBox10.Text = "nsGroupBox10";
+            nsGroupBox10.Title = "";
+            // 
+            // nsLabel28
+            // 
+            nsLabel28.Font = new Font("Segoe UI Semibold", 11F, FontStyle.Bold);
+            nsLabel28.Location = new Point(547, 12);
+            nsLabel28.Name = "nsLabel28";
+            nsLabel28.Size = new Size(208, 17);
+            nsLabel28.TabIndex = 55;
+            nsLabel28.Text = "nsLabel28";
+            nsLabel28.Value1 = "Connected Users";
+            nsLabel28.Value2 = " ";
+            // 
+            // nsGroupBox12
+            // 
+            nsGroupBox12.Controls.Add(nsButton12);
+            nsGroupBox12.Controls.Add(nsTextBox2);
+            nsGroupBox12.Controls.Add(label8);
+            nsGroupBox12.Controls.Add(label9);
+            nsGroupBox12.Controls.Add(label10);
+            nsGroupBox12.Controls.Add(nsLabel27);
+            nsGroupBox12.Controls.Add(nsButton9);
+            nsGroupBox12.Controls.Add(nsButton10);
+            nsGroupBox12.Controls.Add(label11);
+            nsGroupBox12.Controls.Add(label12);
+            nsGroupBox12.DrawSeperator = false;
+            nsGroupBox12.Location = new Point(782, 8);
+            nsGroupBox12.Name = "nsGroupBox12";
+            nsGroupBox12.Size = new Size(238, 214);
+            nsGroupBox12.SubTitle = "";
+            nsGroupBox12.TabIndex = 54;
+            nsGroupBox12.Text = "nsGroupBox12";
+            nsGroupBox12.Title = "";
+            // 
+            // nsButton12
+            // 
+            nsButton12.Location = new Point(59, 186);
+            nsButton12.Name = "nsButton12";
+            nsButton12.Size = new Size(55, 23);
+            nsButton12.TabIndex = 55;
+            nsButton12.Text = "Softban";
+            nsButton12.Click += nsButton12_Click;
+            // 
+            // nsTextBox2
+            // 
+            nsTextBox2.Location = new Point(9, 92);
+            nsTextBox2.MaxLength = 32767;
+            nsTextBox2.Multiline = true;
+            nsTextBox2.Name = "nsTextBox2";
+            nsTextBox2.ReadOnly = false;
+            nsTextBox2.Size = new Size(216, 88);
+            nsTextBox2.TabIndex = 54;
+            nsTextBox2.Text = "No reason specified";
+            nsTextBox2.TextAlign = HorizontalAlignment.Left;
+            nsTextBox2.UseSystemPasswordChar = false;
+            // 
+            // label8
+            // 
+            label8.AutoSize = true;
+            label8.ForeColor = Color.White;
+            label8.Location = new Point(9, 29);
+            label8.Name = "label8";
+            label8.Size = new Size(63, 15);
+            label8.TabIndex = 50;
+            label8.Text = "Username:";
+            // 
+            // label9
+            // 
+            label9.AutoSize = true;
+            label9.ForeColor = Color.White;
+            label9.Location = new Point(9, 50);
+            label9.Name = "label9";
+            label9.Size = new Size(44, 15);
+            label9.TabIndex = 49;
+            label9.Text = "UserID:";
+            // 
+            // label10
+            // 
+            label10.AutoSize = true;
+            label10.ForeColor = Color.White;
+            label10.Location = new Point(9, 74);
+            label10.Name = "label10";
+            label10.Size = new Size(98, 15);
+            label10.TabIndex = 48;
+            label10.Text = "Kick/Ban Reason:";
+            // 
+            // nsLabel27
+            // 
+            nsLabel27.Font = new Font("Segoe UI Black", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            nsLabel27.Location = new Point(9, 3);
+            nsLabel27.Name = "nsLabel27";
+            nsLabel27.Size = new Size(228, 23);
+            nsLabel27.TabIndex = 40;
+            nsLabel27.Text = "nsLabel27";
+            nsLabel27.Value1 = "Connected User";
+            nsLabel27.Value2 = " Details";
+            // 
+            // nsButton9
+            // 
+            nsButton9.Location = new Point(120, 186);
+            nsButton9.Name = "nsButton9";
+            nsButton9.Size = new Size(105, 23);
+            nsButton9.TabIndex = 47;
+            nsButton9.Text = "Ban";
+            nsButton9.Click += nsButton9_Click;
+            // 
+            // nsButton10
+            // 
+            nsButton10.Location = new Point(9, 186);
+            nsButton10.Name = "nsButton10";
+            nsButton10.Size = new Size(44, 23);
+            nsButton10.TabIndex = 46;
+            nsButton10.Text = "Kick";
+            nsButton10.Click += nsButton10_Click;
+            // 
+            // label11
+            // 
+            label11.AutoSize = true;
+            label11.ForeColor = Color.White;
+            label11.Location = new Point(53, 50);
+            label11.Name = "label11";
+            label11.Size = new Size(131, 15);
+            label11.TabIndex = 53;
+            label11.Text = "No user status available";
+            // 
+            // label12
+            // 
+            label12.AutoSize = true;
+            label12.ForeColor = Color.White;
+            label12.Location = new Point(72, 29);
+            label12.Name = "label12";
+            label12.Size = new Size(130, 15);
+            label12.TabIndex = 52;
+            label12.Text = " No username available";
+            // 
+            // nsGroupBox11
+            // 
+            nsGroupBox11.Controls.Add(nsTextBox1);
+            nsGroupBox11.Controls.Add(label5);
+            nsGroupBox11.Controls.Add(label4);
+            nsGroupBox11.Controls.Add(label3);
+            nsGroupBox11.Controls.Add(nsLabel24);
+            nsGroupBox11.Controls.Add(nsButton8);
+            nsGroupBox11.Controls.Add(nsButton7);
+            nsGroupBox11.Controls.Add(label7);
+            nsGroupBox11.Controls.Add(label6);
+            nsGroupBox11.DrawSeperator = false;
+            nsGroupBox11.Location = new Point(295, 8);
+            nsGroupBox11.Name = "nsGroupBox11";
+            nsGroupBox11.Size = new Size(245, 214);
+            nsGroupBox11.SubTitle = "";
+            nsGroupBox11.TabIndex = 48;
+            nsGroupBox11.Text = "nsGroupBox11";
+            nsGroupBox11.Title = "";
+            // 
+            // nsTextBox1
+            // 
+            nsTextBox1.Enabled = false;
+            nsTextBox1.Location = new Point(10, 92);
+            nsTextBox1.MaxLength = 32767;
+            nsTextBox1.Multiline = true;
+            nsTextBox1.Name = "nsTextBox1";
+            nsTextBox1.ReadOnly = true;
+            nsTextBox1.Size = new Size(222, 84);
+            nsTextBox1.TabIndex = 51;
+            nsTextBox1.Text = "No ban reason available";
+            nsTextBox1.TextAlign = HorizontalAlignment.Left;
+            nsTextBox1.UseSystemPasswordChar = false;
+            // 
+            // label5
+            // 
+            label5.AutoSize = true;
+            label5.ForeColor = Color.White;
+            label5.Location = new Point(10, 29);
+            label5.Name = "label5";
+            label5.Size = new Size(63, 15);
+            label5.TabIndex = 50;
+            label5.Text = "Username:";
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.ForeColor = Color.White;
+            label4.Location = new Point(10, 50);
+            label4.Name = "label4";
+            label4.Size = new Size(44, 15);
+            label4.TabIndex = 49;
+            label4.Text = "UserID:";
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.ForeColor = Color.White;
+            label3.Location = new Point(10, 74);
+            label3.Name = "label3";
+            label3.Size = new Size(71, 15);
+            label3.TabIndex = 48;
+            label3.Text = "Ban Reason:";
+            // 
+            // nsLabel24
+            // 
+            nsLabel24.Font = new Font("Segoe UI Black", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            nsLabel24.Location = new Point(10, 3);
+            nsLabel24.Name = "nsLabel24";
+            nsLabel24.Size = new Size(180, 23);
+            nsLabel24.TabIndex = 40;
+            nsLabel24.Text = "nsLabel24";
+            nsLabel24.Value1 = "Users Ban";
+            nsLabel24.Value2 = " Details";
+            // 
+            // nsButton8
+            // 
+            nsButton8.Location = new Point(124, 186);
+            nsButton8.Name = "nsButton8";
+            nsButton8.Size = new Size(108, 23);
+            nsButton8.TabIndex = 47;
+            nsButton8.Text = "Save to Ban File";
+            nsButton8.Click += nsButton8_Click;
+            // 
+            // nsButton7
+            // 
+            nsButton7.Location = new Point(10, 186);
+            nsButton7.Name = "nsButton7";
+            nsButton7.Size = new Size(63, 23);
+            nsButton7.TabIndex = 46;
+            nsButton7.Text = "Unban";
+            nsButton7.Click += nsButton7_Click;
+            // 
+            // label7
+            // 
+            label7.AutoSize = true;
+            label7.ForeColor = Color.White;
+            label7.Location = new Point(54, 50);
+            label7.Name = "label7";
+            label7.Size = new Size(131, 15);
+            label7.TabIndex = 53;
+            label7.Text = "No user status available";
+            // 
+            // label6
+            // 
+            label6.AutoSize = true;
+            label6.ForeColor = Color.White;
+            label6.Location = new Point(73, 29);
+            label6.Name = "label6";
+            label6.Size = new Size(130, 15);
+            label6.TabIndex = 52;
+            label6.Text = " No username available";
+            // 
+            // nsLabel26
+            // 
+            nsLabel26.Font = new Font("Segoe UI Semibold", 11F, FontStyle.Bold);
+            nsLabel26.Location = new Point(4, 8);
+            nsLabel26.Name = "nsLabel26";
+            nsLabel26.Size = new Size(265, 17);
+            nsLabel26.TabIndex = 44;
+            nsLabel26.Text = "nsLabel26";
+            nsLabel26.Value1 = " ";
+            nsLabel26.Value2 = " Banned Users:";
+            // 
+            // nsListView2
+            // 
+            nsListView2.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            nsListView2.ForeColor = Color.White;
+            nsListView2.Location = new Point(546, 7);
+            nsListView2.MultiSelect = false;
+            nsListView2.Name = "nsListView2";
+            nsListView2.Size = new Size(230, 215);
+            nsListView2.TabIndex = 49;
+            nsListView2.Text = "nsListView2";
+            // 
+            // nsListView1
+            // 
+            nsListView1.Font = new Font("Segoe UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            nsListView1.ForeColor = Color.White;
+            nsListView1.Location = new Point(4, 5);
+            nsListView1.MultiSelect = false;
+            nsListView1.Name = "nsListView1";
+            nsListView1.Size = new Size(285, 217);
+            nsListView1.TabIndex = 45;
+            nsListView1.Text = "nsListView1";
+            // 
+            // nsLabel25
+            // 
+            nsLabel25.Font = new Font("Segoe UI Semibold", 11F, FontStyle.Bold);
+            nsLabel25.Location = new Point(6, 228);
+            nsLabel25.Name = "nsLabel25";
+            nsLabel25.Size = new Size(321, 21);
+            nsLabel25.TabIndex = 42;
+            nsLabel25.Text = "nsLabel25";
+            nsLabel25.Value1 = "Chat Log (Current Logged Session)";
+            nsLabel25.Value2 = " ";
+            // 
+            // chatLog
+            // 
+            chatLog.ForeColor = Color.White;
+            chatLog.Location = new Point(4, 254);
+            chatLog.MaxLength = 32767;
+            chatLog.Multiline = true;
+            chatLog.Name = "chatLog";
+            chatLog.ReadOnly = true;
+            chatLog.Size = new Size(1019, 223);
+            chatLog.TabIndex = 39;
+            chatLog.TextAlign = HorizontalAlignment.Left;
+            chatLog.UseSystemPasswordChar = false;
+            // 
+            // nsButton6
+            // 
+            nsButton6.Location = new Point(907, 226);
+            nsButton6.Name = "nsButton6";
+            nsButton6.Size = new Size(113, 23);
+            nsButton6.TabIndex = 29;
+            nsButton6.Text = "Open Full Log";
+            nsButton6.Click += nsButton6_Click;
             // 
             // notifyIcon1
             // 
@@ -981,6 +1387,12 @@
             tabPage2.PerformLayout();
             nsGroupBox7.ResumeLayout(false);
             nsGroupBox9.ResumeLayout(false);
+            tabPage3.ResumeLayout(false);
+            nsGroupBox10.ResumeLayout(false);
+            nsGroupBox12.ResumeLayout(false);
+            nsGroupBox12.PerformLayout();
+            nsGroupBox11.ResumeLayout(false);
+            nsGroupBox11.PerformLayout();
             nsContextMenu1.ResumeLayout(false);
             ResumeLayout(false);
         }
@@ -1056,5 +1468,37 @@
         public TextBox botConsoleView;
         private NSTextBox ServerID;
         private NSLabel nsLabel23;
+        private TabPage tabPage3;
+        private NSGroupBox nsGroupBox10;
+        private NSButton nsButton6;
+        private NSLabel nsLabel24;
+        private NSLabel nsLabel25;
+        private NSButton nsButton8;
+        private NSButton nsButton7;
+        private NSLabel nsLabel26;
+        public NSTextBox chatLog;
+        public NSListView nsListView1;
+        private NSGroupBox nsGroupBox11;
+        private Label label4;
+        private Label label3;
+        private NSTextBox nsTextBox1;
+        private Label label5;
+        private Label label7;
+        private Label label6;
+        private NSGroupBox nsGroupBox12;
+        private Label label8;
+        private Label label9;
+        private Label label10;
+        private NSLabel nsLabel27;
+        private NSButton nsButton9;
+        private NSButton nsButton10;
+        private Label label11;
+        private Label label12;
+        public NSListView nsListView2;
+        private NSLabel nsLabel28;
+        private NSTextBox nsTextBox2;
+        private NSButton nsButton11;
+        private NSComboBox nsComboBox2;
+        private NSButton nsButton12;
     }
 }

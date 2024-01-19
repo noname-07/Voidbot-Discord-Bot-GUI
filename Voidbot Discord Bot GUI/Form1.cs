@@ -1,13 +1,9 @@
-using Discord;
+﻿using Discord;
 using Discord.WebSocket;
 using System.Diagnostics;
 using System.Net;
 using System.Text;
-using System.Web;
-using System.Windows.Forms;
-using TwitchLib.Communication.Interfaces;
 using Voidbot_Discord_Bot_GUI.Properties;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Voidbot_Discord_Bot_GUI
 {
@@ -35,12 +31,14 @@ namespace Voidbot_Discord_Bot_GUI
             InitializeComponent();
             // Access _client through the property
             DiscordSocketClient client = botInstance.DiscordClient;
-
+            // Subscribe to the SelectedIndexChanged event
+            nsListView1.SelectedIndexChanged += nsListView1_SelectedIndexChanged;
+            nsListView2.SelectedIndexChanged += nsListView2_SelectedIndexChanged;
             // Subscribe to the BotDisconnected event
             botInstance.BotDisconnected += OnBotDisconnected;
             botInstance.LogReceived += LogMessageReceived;
             botInstance.BotConnected += OnBotConnected;
-            
+            botInstance.MessageReception += SaveChatLogs;
         }
         public class TextBoxWriter : TextWriter
         {
@@ -69,6 +67,26 @@ namespace Voidbot_Discord_Bot_GUI
             }
 
         }
+        private async void SaveChatLogs(string content)
+        {
+            string filePath = Path.Combine(Application.StartupPath, "chatlogs.txt");
+
+            Invoke(new Action(async () =>
+            {
+                try
+                {
+                    // Write or append the content to the file
+                    await File.AppendAllTextAsync(filePath, content + Environment.NewLine);
+                    // Console.WriteLine("Chat logs saved to chatlogs.txt.");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error saving chat logs: {ex.Message}");
+                }
+
+            }));
+
+        }
         // Method to handle received log messages
         private void LogMessageReceived(string logMessage)
         {
@@ -76,8 +94,10 @@ namespace Voidbot_Discord_Bot_GUI
             Invoke(new Action(() =>
             {
                 botConsoleView.Text += logMessage + Environment.NewLine;
+
             }));
         }
+
         private void OnBotDisconnected(string message)
         {
             Invoke(new Action(() =>
@@ -89,6 +109,7 @@ namespace Voidbot_Discord_Bot_GUI
         }
         private async Task Outputcmd()
         {
+            //Output Console Logs to OutputCMD Textbox, in seperate thread, avoids cross-thread issues
             Task.Run(async () =>
             {
                 while (true)
@@ -120,11 +141,11 @@ namespace Voidbot_Discord_Bot_GUI
                     await Task.Delay(1500);
                 }
             });
-           
+
         }
         private async Task Getbotdeets()
         {
-            
+            //Get bot connection deets, in seperate thread, avoids cross-thread issues
             Task.Run(async () =>
             {
                 while (true)
@@ -138,11 +159,13 @@ namespace Voidbot_Discord_Bot_GUI
                                 label2.Invoke((MethodInvoker)delegate
                                 {
                                     label2.Text = " Bot Connected...";
+                                    label2.ForeColor = System.Drawing.Color.LimeGreen;
                                 });
                             }
                             else
                             {
                                 label2.Text = " Bot Connected...";
+                                label2.ForeColor = System.Drawing.Color.LimeGreen;
                             }
                         }
                         else
@@ -152,11 +175,13 @@ namespace Voidbot_Discord_Bot_GUI
                                 label2.Invoke((MethodInvoker)delegate
                                 {
                                     label2.Text = " Not Connected...";
+                                    label2.ForeColor = System.Drawing.Color.DarkRed;
                                 });
                             }
                             else
                             {
                                 label2.Text = " Not Connected...";
+                                label2.ForeColor = System.Drawing.Color.DarkRed;
                             }
                         }
                     }
@@ -172,7 +197,8 @@ namespace Voidbot_Discord_Bot_GUI
                 }
             });
         }
-            private async Task GetBotName()
+        //Get bot name, in seperate thread, avoids cross-thread issues
+        private async Task GetBotName()
         {
             Task.Run(async () =>
             {
@@ -199,7 +225,7 @@ namespace Voidbot_Discord_Bot_GUI
                         break;
                     }
 
-                    // Wait for a short interval before checking again
+                    // Wait for a short interval before checking again, them Discord Rate Limits
                     await Task.Delay(3000);
                 }
             });
@@ -208,35 +234,41 @@ namespace Voidbot_Discord_Bot_GUI
         {
             Task.Run(async () =>
             {
+                // Add other buttons to enable on bot connect/disconnect
+                var buttonsToCheck = new[] { consolebtnSend, nsButton11 };
+
                 while (true)
-        {
-            if (consolebtnSend.InvokeRequired)
-            {
-                consolebtnSend.Invoke((MethodInvoker)delegate
                 {
-                    // Check if the bot is connected before enabling the button
-                    consolebtnSend.Enabled = botInstance.DiscordClient != null &&
+                    foreach (var button in buttonsToCheck)
+                    {
+                        if (button.InvokeRequired)
+                        {
+                            button.Invoke((MethodInvoker)delegate
+                            {
+                                // Check if the bot is connected before enabling the button
+                                button.Enabled = botInstance.DiscordClient != null &&
+                                                  botInstance.DiscordClient.ConnectionState == ConnectionState.Connected;
+                            });
+                        }
+                        else
+                        {
+                            // Check if the bot is connected before enabling the button
+                            button.Enabled = botInstance.DiscordClient != null &&
                                               botInstance.DiscordClient.ConnectionState == ConnectionState.Connected;
-                });
-            }
-            else
-            {
-                // Check if the bot is connected before enabling the button
-                consolebtnSend.Enabled = botInstance.DiscordClient != null &&
-                                          botInstance.DiscordClient.ConnectionState == ConnectionState.Connected;
-            }
+                        }
+                    }
 
                     if (botInstance.DiscordClient == null || botInstance.DiscordClient.ConnectionState != ConnectionState.Connected)
                     {
                         break;
                     }
 
-
-                    // Wait for a short interval before checking again
+                    // Wait for a short interval before checking again, Discord Rate Limits and all
                     await Task.Delay(1000);
                 }
             });
         }
+
 
         private async Task GetBotStatus()
         {
@@ -244,56 +276,62 @@ namespace Voidbot_Discord_Bot_GUI
             {
                 while (true)
                 {
-                    if (botInstance.DiscordClient != null)
-                    {
-                        if (nsLabel22.InvokeRequired)
-                        {
-                            nsLabel22.Invoke((MethodInvoker)delegate
-                            {
-                                nsLabel22.Value2 = " " + botInstance.DiscordClient.CurrentUser?.Status;
-                            });
-                        }
-                        else
-                        {
-                            nsLabel22.Value2 = " " + botInstance.DiscordClient.CurrentUser?.Status;
-                        }
-                    }
-
                     // Check if the bot is stopped and exit the loop
                     if (botInstance.DiscordClient == null || botInstance.DiscordClient.ConnectionState == ConnectionState.Disconnected)
                     {
                         break;
                     }
 
-                    // Wait for a short interval before checking again
+                    if (nsLabel22.InvokeRequired)
+                    {
+                        nsLabel22.Invoke((MethodInvoker)delegate
+                        {
+                            // Check again if DiscordClient is not null before accessing CurrentUser
+                            if (botInstance.DiscordClient != null)
+                            {
+                                nsLabel22.Value2 = " " + botInstance.DiscordClient.CurrentUser?.Status;
+                            }
+                        });
+                    }
+                    else
+                    {
+                        // Check again if DiscordClient is not null before accessing CurrentUser
+                        if (botInstance.DiscordClient != null)
+                        {
+                            nsLabel22.Value2 = " " + botInstance.DiscordClient.CurrentUser?.Status;
+                        }
+                    }
+
+                    // Wait for a short interval before checking again, else the Discord Rate Limit gets mad
                     await Task.Delay(2000);
                 }
             });
         }
+
         private async Task OnBotConnected()
         {
-       
-                botInstance.SetForm1Instance(this); // Pass the instance of Form1 to MainProgram
-              await botInstance.PopulateComboBoxWithChannels();
-            // Get the bot's avatar URL
-            string avatarUrl = botInstance.DiscordClient.CurrentUser.GetAvatarUrl(ImageFormat.Auto, 256);
-           
-            // Load the avatar into PictureBox1
-            await LoadAvatarIntoPictureBox(avatarUrl);
+            botInstance.SetForm1Instance(this); // Pass the instance of Form1 to MainProgram, run initial methods and logic
+            await Task.WhenAll(
+    botInstance.PopulateListViewWithBannedUsers(),
+    botInstance.PopulateListViewWithConnectedUsersAsync(),
+    botInstance.PopulateComboBoxWithChannels()
+// Other tasks...
+);
+
+
+            await LoadAvatarIntoPictureBox(botInstance.DiscordClient.CurrentUser.GetAvatarUrl(ImageFormat.Auto, 256));
             await Getbotdeets();
             await GetBotName();
             await GetBotStatus();
             await Outputcmd();
             await Activatesend();
-
-
         }
         private async Task LoadAvatarIntoPictureBox(string avatarUrl)
         {
             // Load the avatar into PictureBox1
             if (!string.IsNullOrEmpty(avatarUrl))
             {
-                // You can use a library like WebClient or HttpClient to download the image
+                // Download the image
                 using (WebClient client = new WebClient())
                 {
                     byte[] imageData = client.DownloadData(avatarUrl);
@@ -335,36 +373,35 @@ namespace Voidbot_Discord_Bot_GUI
                 //do nothing
             }
         }
-
+        // start bot method
         private async void nsButton2_Click(object sender, EventArgs e)
         {
-            string userfile = @"\UserCFG.ini";
-
             if (!botInstance.isBotRunning)
             {
-                nsButton2.Enabled = false;
-                nsButton1.Enabled = false;
-               
-           
-                GptApiKey.Enabled = false;
-                YoutubeAPIKey.Enabled = false;
-                YoutubeAppName.Enabled = false;
-                DiscordBotToken.Enabled = false;
-                Youtube.Enabled = false;
-                Twitch.Enabled = false;
-                Steam.Enabled = false;
-                Facebook.Enabled = false;
-                InviteLink.Enabled = false;
-                ServerID.Enabled = false;
-                AutoRole.Enabled = false;
-                ModeratorRole.Enabled = false;
-                StreamerRole.Enabled = false;
-                BotNickname.Enabled = false;
-                BotPersonality.Enabled = false;
+
                 Invoke(new Action(() =>
                 {
                     label2.Text = " Connecting...";
                     label2.ForeColor = System.Drawing.Color.LimeGreen;
+                    nsButton2.Enabled = false;
+                    nsButton1.Enabled = false;
+                    nsButton11.Enabled = true;
+
+                    GptApiKey.Enabled = false;
+                    YoutubeAPIKey.Enabled = false;
+                    YoutubeAppName.Enabled = false;
+                    DiscordBotToken.Enabled = false;
+                    Youtube.Enabled = false;
+                    Twitch.Enabled = false;
+                    Steam.Enabled = false;
+                    Facebook.Enabled = false;
+                    InviteLink.Enabled = false;
+                    ServerID.Enabled = false;
+                    AutoRole.Enabled = false;
+                    ModeratorRole.Enabled = false;
+                    StreamerRole.Enabled = false;
+                    BotNickname.Enabled = false;
+                    BotPersonality.Enabled = false;
                 }));
 
 
@@ -376,39 +413,42 @@ namespace Voidbot_Discord_Bot_GUI
 
 
         }
-
+        // stop bot method
         private async void nsButton3_Click(object sender, EventArgs e)
         {
 
             if (botInstance.isBotRunning)
             {
-                nsButton2.Enabled = true;
-                nsButton1.Enabled = true;
-                pictureBox1.Image = Resources._2451296;
-                nsLabel22.Value2 = " Offline";
-                nsLabel20.Value2 = " ";
-                GptApiKey.Enabled = true;
-                YoutubeAPIKey.Enabled = true;
-                YoutubeAppName.Enabled = true;
-                DiscordBotToken.Enabled = true;
-                Youtube.Enabled = true;
-                Twitch.Enabled = true;
-                Steam.Enabled = true;
-                Facebook.Enabled = true;
-                InviteLink.Enabled = true;
-                ServerID.Enabled = true;
-                AutoRole.Enabled = true;
-                ModeratorRole.Enabled = true;
-                StreamerRole.Enabled = true;
-                BotNickname.Enabled = true;
-                BotPersonality.Enabled = true;
-                // Restart or recreate the botInstance
-               
+
 
                 Invoke(new Action(() =>
                 {
                     label2.Text = " Not Connected...";
                     label2.ForeColor = System.Drawing.Color.Red;
+                    nsButton2.Enabled = true;
+                    nsButton1.Enabled = true;
+                    nsButton11.Enabled = false;
+                    pictureBox1.Image = Resources._2451296;
+                    nsLabel22.Value2 = " Offline";
+                    nsLabel20.Value2 = " ";
+                    GptApiKey.Enabled = true;
+                    YoutubeAPIKey.Enabled = true;
+                    YoutubeAppName.Enabled = true;
+                    DiscordBotToken.Enabled = true;
+                    Youtube.Enabled = true;
+                    Twitch.Enabled = true;
+                    Steam.Enabled = true;
+                    Facebook.Enabled = true;
+                    InviteLink.Enabled = true;
+                    ServerID.Enabled = true;
+                    AutoRole.Enabled = true;
+                    ModeratorRole.Enabled = true;
+                    StreamerRole.Enabled = true;
+                    BotNickname.Enabled = true;
+                    BotPersonality.Enabled = true;
+                    // You can stop, or recreate the botInstance
+
+
                 }));
                 await botInstance.StopBot();
             }
@@ -505,7 +545,7 @@ namespace Voidbot_Discord_Bot_GUI
             else
             {
                 Facebook.Text = UserSettings(Application.StartupPath + userfile, "Facebook");
-            } 
+            }
             if (string.IsNullOrEmpty(UserSettings(Application.StartupPath + userfile, "ServerID")))
             {
                 ServerID.Text = "Input Your Server ID";
@@ -715,10 +755,10 @@ namespace Voidbot_Discord_Bot_GUI
             {
                 notifyIcon1.Text = "VoidBot Discord Bot Running in Tray: Waiting...";
                 notifyIcon1.ShowBalloonTip(1000, "VoidBot Discord Bot Running in Tray: Waiting...", "VoidBot Discord Bot Running in Tray: Waiting...", ToolTipIcon.Info);
-               
+
             }
 
-          
+
         }
 
         private void notifyIcon1_MouseMove(object sender, MouseEventArgs e)
@@ -734,18 +774,600 @@ namespace Voidbot_Discord_Bot_GUI
             string messageToSend = commandInputConsoleview.Text;
             string channelName = nsComboBox1.Text;
 
-            // send message to "main-channel" (Change this to the channel you'd like)
+            // send message to selected channel
             await botInstance.SendMessageToDiscord(messageToSend, channelName);
             commandInputConsoleview.Text = null;
         }
 
-        //private async void nsButton6_Click(object sender, EventArgs e)
-        //{
-         
-        //    botInstance.SetForm1Instance(this); // Pass the instance of Form1 to MainProgram
-        //    await botInstance.PopulateComboBoxWithChannels();
-        //}
-    }
+        private void nsGroupBox10_Click(object sender, EventArgs e)
+        {
 
+        }
+
+
+
+        private void nsListView1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (InvokeRequired)
+            {
+                // If not on the UI thread, invoke this method on the UI thread
+                Invoke(new Action(() => nsListView1_SelectedIndexChanged(sender, e)));
+                return;
+            }
+
+
+            if (nsListView1.SelectedItems != null)
+            {
+                var selectedItem = nsListView1.SelectedItems[0];
+
+                // Debugging: Output the subitem count to understand the awful structure of NSListView LOL
+                // Console.WriteLine($"Subitem count: {selectedItem.SubItems.Count}");
+
+                if (selectedItem.SubItems.Count >= 3)
+                {
+                    label6.Text = selectedItem.SubItems[0].Text; // username is in the first subitem
+                    label7.Text = selectedItem.SubItems[1].Text; // ID is in the second subitem
+                    nsTextBox1.Text = selectedItem.SubItems[2].Text; // Reason is in the third subitem
+                }
+                else
+                {
+                    // Handle the case where there are not enough subitems
+                    label6.Text = "No username available";
+                    label7.Text = "N/A";
+                    nsTextBox1.Text = "No ban reason found.";
+                }
+            }
+            else
+            {
+                // Handle the case where no item is selected
+                label6.Text = "No item selected";
+                label7.Text = "N/A";
+                nsTextBox1.Text = "";
+            }
+        }
+
+        private void nsListView2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (InvokeRequired)
+            {
+                // If not on the UI thread, invoke this method on the UI thread
+                Invoke(new Action(() => nsListView2_SelectedIndexChanged(sender, e)));
+                return;
+            }
+
+
+            if (nsListView2.SelectedItems != null && nsListView2.Items.Length > 0)
+            {
+                var selectedItem = nsListView2.SelectedItems[0];
+
+                // Debugging: Output the subitem count to understand the awful structure of NSListView LOL
+                //Console.WriteLine($"Subitem 2 count: {selectedItem.SubItems.Count}");
+
+                if (selectedItem.SubItems.Count >= 2)
+                {
+                    label12.Text = selectedItem.SubItems[0].Text; // username is in the first subitem
+                    label11.Text = selectedItem.SubItems[1].Text; // userID is in the second subitem
+                }
+                else
+                {
+                    // Handle the case where there are not enough subitems
+                    label12.Text = "N/A";
+                    label11.Text = "N/A";
+
+                }
+            }
+            else
+            {
+                // Handle the case where no item is selected
+                label12.Text = "N/A";
+                label11.Text = "N/A";
+
+            }
+        }
+
+        private void nsButton6_Click(object sender, EventArgs e)
+        {
+            string folderPath = Path.GetDirectoryName(Path.Combine(Application.StartupPath, "chatlogs.txt"));
+
+            if (Directory.Exists(folderPath))
+            {
+                Process.Start("explorer.exe", folderPath);
+            }
+            else
+            {
+                MessageBox.Show(folderPath + " Not found, chatlogs.txt should be created on run. Please report bug (chatlogs creation error)", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private async void nsButton7_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (nsListView1.SelectedItems != null && nsListView1._SelectedItems.Count > 0)
+                {
+                    var selectedItem = nsListView1.SelectedItems[0];
+
+                    if (ulong.TryParse(label7.Text, out ulong userId))
+                    {
+                        string userfile2 = @"\UserCFG.ini";
+                        string GuildIDString = UserSettings(Application.StartupPath + userfile2, "ServerID");
+
+                        if (ulong.TryParse(GuildIDString, out ulong guildId))
+                        {
+                            var guild = botInstance.DiscordClient.GetGuild(guildId);
+
+                            if (guild != null)
+                            {
+                                var ban = await guild.GetBanAsync(userId);
+
+                                if (ban != null)
+                                {
+                                    Console.WriteLine($"Removing ban for user with ID: {userId}");
+                                    chatLog.AppendText($"Removing ban for user with ID: {userId}");
+                                    await guild.RemoveBanAsync(userId);
+                                    RemoveFromGlobalBans(label6.Text, label7.Text);
+
+                                    // Invoke UI updates for nsListView1
+                                    nsListView1.BeginInvoke(new Action(() =>
+                                    {
+                                        nsListView1._Items.Remove(selectedItem);
+                                        nsListView1.InvalidateLayout();
+                                    }));
+
+                                    // Wait for to finish updating before updating other UI elements
+                                    await Task.Delay(500);
+
+                                    // Perform UI updates for other UI elements (if needed)
+                                    Invoke(new Action(() =>
+                                    {
+                                        // Update other UI elements here, e.g., labels
+                                        label6.Text = "";
+                                        label7.Text = "";
+                                    }));
+
+                                    //// Perform other tasks on the UI thread
+                                    //await Task.WhenAll(
+                                    //    botInstance.PopulateComboBoxWithChannels()
+                                    //// Other UI-related tasks...
+                                    //);
+
+
+                                    //// Wait for nsListView2 to finish updating before updating other UI elements
+                                    //await Task.Delay(500);
+
+                                    //// Invoke UI updates for other UI elements (if needed)
+                                    //Invoke(new Action(() =>
+                                    //{
+                                    //    // Update other UI elements here, if necessary
+                                    //}));
+
+                                    //// Perform other tasks on the UI thread (if needed)
+                                    //await Task.WhenAll(
+                                    //// Other UI-related tasks...
+                                    //);
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"User with ID {userId} is not banned in the guild.");
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine("Invalid ServerID provided.");
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Invalid ServerID format.");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("No User selected");
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("No user selected. Please select a user to unban.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in Ban CMD: {ex.Message}");
+            }
+        }
+
+
+
+        private void RemoveFromGlobalBans(string username, string userId)
+        {
+            try
+            {
+                // Specify the path to bans_global.txt
+                string filePath = "bans_global.txt";
+
+                // Read all lines from the file
+                var lines = File.ReadAllLines(filePath).ToList();
+
+                // Find and remove the entry with the matching username and userID
+                string entryToRemove = $"Username: {username} | UserID: {userId}";
+                lines.Remove(entryToRemove);
+
+                // Write the modified content back to the file
+                File.WriteAllLines(filePath, lines);
+
+                // Optionally, provide feedback or perform additional actions
+                Console.WriteLine($"Entry removed from {filePath}");
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions if any
+                Console.WriteLine($"Error removing entry from bans_global.txt: {ex.Message}");
+            }
+        }
+        private void SaveGlobalBanList(string content)
+        {
+            try
+            {
+                // Specify the path to bans_global.txt
+                string filePath = "bans_global.txt";
+
+                // Check if the content already exists in the file
+                if (!File.Exists(filePath) || !File.ReadLines(filePath).Contains(content))
+                {
+                    // Append the content to the file
+                    System.IO.File.AppendAllText(filePath, content + Environment.NewLine);
+
+                    // provide feedback or perform additional actions
+                    Console.WriteLine($"Content saved to {filePath}");
+                }
+                else
+                {
+                    // provide feedback that the content already exists
+                    Console.WriteLine($"Content already exists in {filePath}");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions if any
+                Console.WriteLine($"Error saving to text file: {ex.Message}");
+            }
+        }
+        private void nsButton8_Click(object sender, EventArgs e)
+        {
+            if (!string.IsNullOrEmpty(label6.Text) && !string.IsNullOrEmpty(label7.Text))
+            {
+                // Your code here
+                SaveGlobalBanList($"Username: {label6.Text} | UserID: {label7.Text}");
+                chatLog.AppendText($"Saved Ban Entry [Username: {label6.Text} | UserID: {label7.Text}]" + Environment.NewLine);
+            }
+            else
+            {
+                chatLog.AppendText("No user selected, Please select a user to save to the Global Bans list.");
+            }
+
+
+        }
+
+        private async void nsButton10_Click(object sender, EventArgs e)
+        {
+
+
+            if (nsListView2.SelectedItems != null && nsListView2._SelectedItems.Count > 0)
+            {
+                var selectedItem = nsListView2.SelectedItems[0];
+
+                // Get the user ID from label11.Text
+                if (ulong.TryParse(label11.Text, out ulong userId))
+                {
+                    // Convert string to ulong for guild ID
+                    string userfile2 = @"\UserCFG.ini";
+                    string GuildIDString = UserSettings(Application.StartupPath + userfile2, "ServerID");
+
+                    if (ulong.TryParse(GuildIDString, out ulong guildId))
+                    {
+                        var guild = botInstance.DiscordClient.GetGuild(guildId);
+
+                        if (guild != null)
+                        {
+                            // Get banned users list
+                            var ban = await guild.GetBanAsync(userId);
+
+                            if (ban == null)
+                            {
+                                // User is not banned, proceed with kicking
+                                Console.WriteLine($"Bot Kicked 🦵: {userId}" + " from the server. D:");
+                                chatLog.AppendText($"Bot Kicked 🦵: {userId}" + " from the server. D:");
+                                await guild.AddBanAsync(userId, 0, label11.Text);
+
+                                await guild.RemoveBanAsync(userId);
+                                // Invoke UI updates for other UI elements
+                                Invoke(new Action(() =>
+                                {
+                                    // Update other UI elements here, e.g., labels
+                                    label6.Text = "";
+                                    label7.Text = "";
+                                }));
+
+
+                                nsListView2.BeginInvoke(new Action(() =>
+                                {
+                                    nsListView2._Items.Remove(selectedItem);
+
+
+                                    nsListView2.InvalidateLayout();
+
+
+                                }));
+                            }
+                            else
+                            {
+                                //do nothing, they're just being kicked
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Invalid guild ID provided.");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid ServerID format.");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("No user selected, Please select a user to kick");
+                }
+            }
+            else
+            {
+                // Handle the case where no user is selected
+                MessageBox.Show("No user selected. Please select a user to kick.");
+            }
+
+
+        }
+
+
+        private async Task<ulong> GetChannelIdByName(string channelName)
+        {
+
+            var guild = (botInstance.DiscordClient as DiscordSocketClient)?.Guilds.FirstOrDefault();
+
+            if (guild != null)
+            {
+                // Fetch all channels in the guild
+                var channels = guild.Channels;
+
+                // Find the channel by name
+                var channel = channels.FirstOrDefault(c => c.Name == channelName);
+
+                // Return the channel ID if found
+                return channel?.Id ?? 0;
+            }
+
+            return 0;
+        }
+        private void nsButton11_Click(object sender, EventArgs e)
+        {
+            // Get the selected channel name
+            string selectedChannelName = nsComboBox1.SelectedItem?.ToString();
+
+            if (!string.IsNullOrEmpty(selectedChannelName))
+            {
+                // Get the selected number of messages to purge from the dropdown box
+                if (int.TryParse(nsComboBox2.Text?.ToString(), out int messagesToPurge))
+                {
+                    // Call the method to handle the purge for the selected channel with the specified message count
+                    HandlePurgeForChannel(selectedChannelName, messagesToPurge);
+                }
+                else
+                {
+                    // Inform the user that the selected message count is not valid
+                    MessageBox.Show("Please select a valid number of messages to purge.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            else
+            {
+                // Inform the user that no channel is selected
+                MessageBox.Show("Please select a channel from the dropdown box.", "Channel Selection Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private async Task HandlePurgeForChannel(string channelName, int messagesToPurge)
+        {
+            // Get the channel ID by name
+            ulong channelId = await GetChannelIdByName(channelName);
+
+            if (channelId != 0)
+            {
+                // Call the method to handle the purge for the selected channel ID with the specified message count
+                await HandlePurgeForChannel(channelId, messagesToPurge);
+            }
+            else
+            {
+                // Inform the user that the channel name is not found
+                MessageBox.Show($"Channel ID not found for the selected channel name: {channelName}", "Channel ID Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private async Task HandlePurgeForChannel(ulong channelId, int messagesToPurge)
+        {
+            // Get the channel
+            var channel = botInstance.DiscordClient.GetChannel(channelId) as ISocketMessageChannel;
+
+            // Check if the channel is not null
+            if (channel != null)
+            {
+                // Fetch messages and filter out those older than two months
+                var messages = await channel.GetMessagesAsync(messagesToPurge).FlattenAsync();
+                var messagesToDelete = messages.Where(m => (DateTimeOffset.Now - m.CreatedAt).TotalDays < 60);
+
+                // Delete the filtered messages
+                await (channel as ITextChannel)?.DeleteMessagesAsync(messagesToDelete);
+
+                // Inform about the purge
+                await channel.SendMessageAsync($"Purged {messagesToDelete.Count()} messages.");
+                Console.WriteLine($"Successfully purged {messagesToDelete.Count()} messages.");
+            }
+        }
+
+        private async void nsButton9_Click(object sender, EventArgs e)
+        {
+            // Check if any item is selected in the nsListView1
+
+            if (nsListView2.SelectedItems != null && nsListView2._SelectedItems.Count > 0)
+            {
+                var selectedItem = nsListView2.SelectedItems[0];
+
+                // Get the user ID from label11.Text
+                if (ulong.TryParse(label11.Text, out ulong userId))
+                {
+                    // Convert string to ulong for guild ID
+                    string userfile2 = @"\UserCFG.ini";
+                    string GuildIDString = UserSettings(Application.StartupPath + userfile2, "ServerID");
+
+                    if (ulong.TryParse(GuildIDString, out ulong guildId))
+                    {
+                        var guild = botInstance.DiscordClient.GetGuild(guildId);
+
+                        if (guild != null)
+                        {
+                            // Get information about the ban
+                            var ban = await guild.GetBanAsync(userId);
+
+                            if (ban == null)
+                            {
+                                // User is not banned, proceed with banning
+                                Console.WriteLine($"Bot banned: " + label12.Text + "🔨 from the server. Reason: " + nsTextBox2.Text);
+                                chatLog.AppendText($"Bot banned: " + label12.Text + "🔨 from the server. Reason: " + nsTextBox2.Text);
+                                await guild.AddBanAsync(userId, 7, nsTextBox2.Text);
+                                // Add entry to bans_global.txt
+                                SaveGlobalBanList($"Username: {label12.Text} | UserID: {label11.Text}");
+
+
+                                nsListView2.BeginInvoke(new Action(() =>
+                                {
+                                    nsListView2._Items.Remove(selectedItem);
+
+
+                                    nsListView2.InvalidateLayout();
+
+                                }));
+                            }
+                            else
+                            {
+                                // User is already banned
+                                Console.WriteLine($"User with ID {userId} is already banned in the guild.");
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Invalid ServerID provided.");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid ServerID format.");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("No User selected, please select a user.");
+                }
+            }
+            else
+            {
+                // Handle the case where no item is selected
+                MessageBox.Show("No user selected. Please select a user to ban.");
+            }
+
+
+        }
+
+        private async void nsButton12_Click(object sender, EventArgs e)
+        {
+
+
+            if (nsListView2.SelectedItems != null && nsListView2._SelectedItems.Count > 0)
+            {
+                var selectedItem = nsListView2.SelectedItems[0];
+
+                // Get the user ID from label11.Text
+                if (ulong.TryParse(label11.Text, out ulong userId))
+                {
+                    // Convert string to ulong for guild ID
+                    string userfile2 = @"\UserCFG.ini";
+                    string GuildIDString = UserSettings(Application.StartupPath + userfile2, "ServerID");
+
+                    if (ulong.TryParse(GuildIDString, out ulong guildId))
+                    {
+                        var guild = botInstance.DiscordClient.GetGuild(guildId);
+
+                        if (guild != null)
+                        {
+                            // Get banned users list
+                            var ban = await guild.GetBanAsync(userId);
+
+                            if (ban == null)
+                            {
+                                // User is not banned, proceed with kicking
+                                Console.WriteLine($"Bot Softbanned and Pruned 🦵: {userId}" + " from the server. D:");
+                                chatLog.AppendText($"Bot Softbanned and Pruned 🦵: {userId}" + " from the server. D:");
+                                // Optionally send the message to the server
+                                //await botInstance.SendMessageToDiscord($"Bot Softbanned and Pruned 🦵: {userId}" + " from the server. D:");
+                                await guild.AddBanAsync(userId, 0, label11.Text);
+
+                                await guild.RemoveBanAsync(userId);
+                                // Invoke UI updates for other UI elements
+                                Invoke(new Action(() =>
+                                {
+                                    // Update other UI elements here, e.g., labels
+                                    label6.Text = "";
+                                    label7.Text = "";
+                                }));
+
+
+                                nsListView2.BeginInvoke(new Action(() =>
+                                {
+                                    nsListView2._Items.Remove(selectedItem);
+
+
+                                    nsListView2.InvalidateLayout();
+
+
+                                }));
+                            }
+                            else
+                            {
+                                //do nothing, they're just being kicked
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Invalid guild ID provided.");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid ServerID format.");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("No user selected, Please select a user to kick");
+                }
+            }
+            else
+            {
+                // Handle the case where no user is selected
+                MessageBox.Show("No user selected. Please select a user to kick.");
+            }
+
+        }
+
+    }
 }
-//dotnet publish -r win-x64 /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true --output "C:\Users\Ken\Desktop\TotK Tools Mod Manager" <======================== Publish single file options powershell commands
+
+

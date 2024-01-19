@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.VisualBasic.CompilerServices;
 using System.ComponentModel;
-using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Text;
-using System.Windows.Forms;
-using Microsoft.VisualBasic.CompilerServices;
 namespace Voidbot_Discord_Bot_GUI
 {
 
@@ -162,41 +158,41 @@ namespace Voidbot_Discord_Bot_GUI
         public PathGradientBrush PB1;
         public LinearGradientBrush GB1;
 
-       protected override void OnPaint(PaintEventArgs e)
-{
-    ThemeModule.G = e.Graphics;
-    ThemeModule.G.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            ThemeModule.G = e.Graphics;
+            ThemeModule.G.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
 
-    ThemeModule.G.Clear(BackColor);
-    ThemeModule.G.SmoothingMode = SmoothingMode.AntiAlias;
+            ThemeModule.G.Clear(BackColor);
+            ThemeModule.G.SmoothingMode = SmoothingMode.AntiAlias;
 
-    GP1 = ThemeModule.CreateRound(0, 0, Width - 1, Height - 1, 7);
-    GP2 = ThemeModule.CreateRound(1, 1, Width - 3, Height - 3, 7);
+            GP1 = ThemeModule.CreateRound(0, 0, Width - 1, Height - 1, 7);
+            GP2 = ThemeModule.CreateRound(1, 1, Width - 3, Height - 3, 7);
 
-    Color buttonColor;
+            Color buttonColor;
 
-    if (IsMouseDown)
-    {
-        buttonColor = Color.FromArgb(60, 60, 60);
-    }
-    else
-    {
-        buttonColor = Enabled
-            ? Color.FromArgb(100, 100, 100)  // Normal color when enabled
-            : Color.FromArgb(60, 60, 60);    // Darker color when disabled
-    }
+            if (IsMouseDown)
+            {
+                buttonColor = Color.FromArgb(60, 60, 60);
+            }
+            else
+            {
+                buttonColor = Enabled
+                    ? Color.FromArgb(100, 100, 100)  // Normal color when enabled
+                    : Color.FromArgb(60, 60, 60);    // Darker color when disabled
+            }
 
-    using (var brush = new SolidBrush(buttonColor))
-    {
-        ThemeModule.G.FillPath(brush, GP1);
-    }
+            using (var brush = new SolidBrush(buttonColor))
+            {
+                ThemeModule.G.FillPath(brush, GP1);
+            }
 
-    ThemeModule.G.DrawPath(P1, GP1);
-    ThemeModule.G.DrawPath(P2, GP2);
+            ThemeModule.G.DrawPath(P1, GP1);
+            ThemeModule.G.DrawPath(P2, GP2);
 
-    SZ1 = ThemeModule.G.MeasureString(Text, Font);
-    float centerX = (Width - SZ1.Width) / 2.0f;
-    PT1 = new PointF(centerX, Height / 2 - SZ1.Height / 2f);
+            SZ1 = ThemeModule.G.MeasureString(Text, Font);
+            float centerX = (Width - SZ1.Width) / 2.0f;
+            PT1 = new PointF(centerX, Height / 2 - SZ1.Height / 2f);
 
             if (IsMouseDown)
             {
@@ -3200,7 +3196,17 @@ namespace Voidbot_Discord_Bot_GUI
     // sick act of masochism by studying the source of the ListView then, may god have mercy on your soul.
     public class NSListView : Control
     {
+        // Custom event handler delegate for selection change
+        public delegate void SelectedIndexChangedHandler(object sender, EventArgs e);
+        public event SelectedIndexChangedHandler SelectedIndexChanged;
 
+        // ... (rest of your code)
+
+        // Call this method when the selection changes
+        protected virtual void OnSelectedIndexChanged(EventArgs e)
+        {
+            SelectedIndexChanged?.Invoke(this, e);
+        }
         public class NSListViewItem
         {
             public string Text { get; set; }
@@ -3481,6 +3487,9 @@ namespace Voidbot_Discord_Bot_GUI
                         _SelectedItems.Clear();
                         _SelectedItems.Add(_Items[Index]);
                     }
+
+                    // Notify about the selection change
+                    OnSelectedIndexChanged(EventArgs.Empty);
                 }
 
                 Invalidate();
@@ -3488,6 +3497,7 @@ namespace Voidbot_Discord_Bot_GUI
 
             base.OnMouseDown(e);
         }
+
 
         public Pen P1, P2, P3;
         public SolidBrush B1, B2, B3, B4;

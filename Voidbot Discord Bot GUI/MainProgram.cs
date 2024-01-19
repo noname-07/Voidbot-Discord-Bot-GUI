@@ -1,38 +1,19 @@
 ﻿using Discord;
 using Discord.WebSocket;
-using Microsoft.VisualBasic.ApplicationServices;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Color = Discord.Color;
-using System;
-using Discord;
-using Discord.WebSocket;
-using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using System.Text;
 using Newtonsoft.Json;
-using Discord.Commands;
-using System.Windows.Input;
 using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
-using System.Text.RegularExpressions;
-using static System.Net.Mime.MediaTypeNames;
-using HtmlAgilityPack;
-using TwitchLib.Api.Helix.Models.Chat.Emotes;
-using System.Net;
-using Google.Apis.YouTube.v3.Data;
-using System.Reflection;
 using HtmlDocument = HtmlAgilityPack.HtmlDocument;
-using TwitchLib.Communication.Interfaces;
+using Discord.Rest;
 namespace Voidbot_Discord_Bot_GUI
 {
-public class MainProgram
+    public class MainProgram
     {
         private static Form1 _instance;
 
@@ -71,7 +52,7 @@ public class MainProgram
         public bool isBotRunning = false;
         // Define an event for log messages
         public event Action<string> LogReceived;
-
+        public event Action<string> MessageReception;
         // Define the event
         public event Action<string> BotDisconnected;
         public event Func<Task> BotConnected;
@@ -153,6 +134,7 @@ public class MainProgram
                 _client.Dispose();
                 _client = null;
                 DiscordClient = null;
+                _instance = null;
             }
 
 
@@ -161,10 +143,8 @@ public class MainProgram
         }
         public async Task RunBotAsync()
         {
-            //Console.Title = "VoiDBot Discord Bot";
-            // Check if the file exists
-            // Get the application startup path
-
+       
+            //TODO Implement proper usage of CancellationTokenSource to handle connections/disconnections gracefully.
             cancellationTokenSource = new CancellationTokenSource();
 
             try
@@ -180,14 +160,28 @@ public class MainProgram
                 _client.Log += Log;
                 _client.MessageReceived += HandleMessageAsync;
                 _client.UserJoined += UserJoined;
-         
                 _client.Ready += BotConnected;
+                _client.Connected += () =>
+                {
+                    Console.WriteLine("Connected to Discord!");
+                    return Task.CompletedTask;
+                };
+
+                _client.Disconnected += async (exception) =>
+                {
+                    Console.WriteLine($"Disconnected from Discord, Attempting to reconnect shortly. Error: {exception?.Message}");
+
+                   
+                    await Task.Delay(new Random().Next(3, 5) * 1000); // Add a delay to avoid rapid reconnection attempts, and that Discord Rest Limit xD
+                    await StartBotAsync();
+                };
+
                 // Start checking the connection state in a separate task
                 Task.Run(async () =>
                 {
                     while (true)
                     {
-                        // Check if there are any logged error messages
+                        // Check if there are any logged error messages, if so, save to file for logging
                         bool hasErrors = logMessages.Any(logMessage => logMessage.Severity == LogSeverity.Error);
                         // If there are errors, trigger the event
                         if (hasErrors)
@@ -231,7 +225,7 @@ public class MainProgram
             // Trigger the event with the log message
             LogReceived?.Invoke(logText);
             // Save to the file
-            string filePath = Path.Combine(startupPath, "Bot_logs.txt");
+            string filePath = Path.Combine(startupPath, "bot_logs.txt");
 
             try
             {
@@ -255,6 +249,176 @@ public class MainProgram
             catch (Exception ex)
             {
                 Console.WriteLine($"Error writing to log file: {ex.Message}");
+            }
+        }
+
+        public async Task<List<RestBan>> GetBanList(ulong guildId)
+        {
+          
+            var guild = _client.GetGuild(guildId);
+
+            if (guild != null)
+            {
+                // Retrieve the ban list
+                var bansCollections = await guild.GetBansAsync().ToListAsync();
+
+                // Flatten the nested collections into a single list
+                var bans = bansCollections.SelectMany(collection => collection).ToList();
+
+                return bans;
+            }
+            else
+            {
+                Console.WriteLine("Invalid ServerID provided.");
+                return null;
+            }
+        }
+
+        public async Task PopulateListViewWithConnectedUsersAsync()
+        {
+            
+            Task.Run(async () =>
+            {
+                while (true)
+                {
+                    // Check if the form is still accessible before updating the UI
+                    if (_instance != null && !_instance.IsDisposed)
+                    {
+                        string userfile2 = @"\UserCFG.ini";
+                        string GuildIDString = UserSettings(startupPath + userfile2, "ServerID"); // Your Server ID as string
+
+                        // Convert string to ulong
+                        if (ulong.TryParse(GuildIDString, out ulong GuildID))
+                        {
+                            // Fetch the list of connected users
+                            var connectedUsers = (await GetConnectedUsersAsync(GuildID)).Cast<SocketUser>().ToList();
+
+                            _instance.nsListView2?.Invoke(new Action(() =>
+                            {
+                                if (_instance.nsListView2.IsHandleCreated)
+                                {
+                                    foreach (var user in connectedUsers)
+                                    {
+                                        var nsListViewItem = _instance.nsListView2._Items.FirstOrDefault(item => item.Text == user.Username);
+
+                                        if (nsListViewItem == null)
+                                        {
+                                            nsListViewItem = new NSListView.NSListViewItem();
+                                            nsListViewItem.Text = user.Username;
+
+                                            nsListViewItem.SubItems.Add(new NSListView.NSListViewSubItem { Text = user.Username });
+                                            nsListViewItem.SubItems.Add(new NSListView.NSListViewSubItem { Text = user.Id.ToString() });
+                                 
+                                            _instance.nsListView2._Items.Add(nsListViewItem);
+                                        }
+                                        else
+                                        {
+                                            // Update existing item if needed
+                                          
+                                            nsListViewItem.SubItems[0].Text = user.Username + " #" + user.Discriminator;
+                                            nsListViewItem.SubItems[1].Text = user.Id.ToString();
+
+                                        }
+                                    }
+
+                                    _instance.nsListView2.InvalidateLayout();
+
+                                }
+                            }));
+
+                        }
+                        else
+                        {
+                            Console.WriteLine("Invalid ServerID provided in UserSettings.");
+                        }
+                    }
+
+                    // Wait for a short interval before checking again
+                    await Task.Delay(5000);
+                }
+            });
+
+        }
+        public async Task PopulateListViewWithBannedUsers()
+        {
+            Task.Run(async () =>
+            {
+                while (true)
+                {
+                    // Check if the form is still accessible before updating the UI
+                    if (_instance != null && !_instance.IsDisposed)
+                    {
+                        string userfile2 = @"\UserCFG.ini";
+                        string GuildIDString = UserSettings(startupPath + userfile2, "ServerID"); // Your Server ID as string
+
+                        // Convert string to ulong
+                        if (ulong.TryParse(GuildIDString, out ulong GuildID))
+                        {
+                            // Get the ban list for the guild
+                            var bans = await GetBanList(GuildID);
+
+                            // Safely update the ListView items only if there are changes
+                            _instance.nsListView1?.Invoke(new Action(() =>
+                            {
+                                if (_instance.nsListView1.IsHandleCreated)
+                                {
+                                    foreach (var ban in bans)
+                                    {
+                                        var nsListViewItem = _instance.nsListView1._Items.FirstOrDefault(item => item.Text == ban.User.Username);
+
+                                        if (nsListViewItem == null)
+                                        {
+                                            nsListViewItem = new NSListView.NSListViewItem();
+                                            nsListViewItem.Text = ban.User.Username;
+                                            nsListViewItem.SubItems.Add(new NSListView.NSListViewSubItem { Text = ban.User.Username + " #" + ban.User.Discriminator });
+                                            nsListViewItem.SubItems.Add(new NSListView.NSListViewSubItem { Text = ban.User.Id.ToString() });
+                                            nsListViewItem.SubItems.Add(new NSListView.NSListViewSubItem { Text = ban.Reason });
+                                            _instance.nsListView1._Items.Add(nsListViewItem);
+                                        }
+                                        else
+                                        {
+                                            // Update existing item if needed
+                                            nsListViewItem.SubItems[0].Text = ban.User.Username + " #" + ban.User.Discriminator;
+                                            nsListViewItem.SubItems[1].Text = ban.User.Id.ToString();
+                                            nsListViewItem.SubItems[2].Text = ban.Reason;
+
+                                        }
+                                    }
+
+                                    _instance.nsListView1.InvalidateLayout();
+                                  
+                                }
+                            }));
+
+                        }
+                        else
+                        {
+                            Console.WriteLine("Invalid ServerID provided in UserSettings.");
+                        }
+                    }
+
+                    // Wait for a short interval before checking again
+                    await Task.Delay(5000);
+                }
+            });
+        }
+
+        // Helper method to get connected users
+        private async Task<List<SocketGuildUser>> GetConnectedUsersAsync(ulong guildId)
+        {
+            var guild = DiscordClient.GetGuild(guildId);
+
+            if (guild != null)
+            {
+                // Retrieve the list of connected users
+                var connectedUsers = guild.Users.ToList();
+
+                return connectedUsers;
+            }
+            else
+            {
+                Console.WriteLine("Invalid guild ID provided.");
+                return new List<SocketGuildUser>();
             }
         }
 
@@ -319,10 +483,6 @@ public class MainProgram
             });
         }
 
-
-
-
-
         public async Task SendMessageToDiscord(string message)
         {
             await Task.Run(async () =>
@@ -358,17 +518,17 @@ public class MainProgram
                         }
                         else
                         {
-                            Console.WriteLine($"Unable to send message to channel '{channelName}'. Text channel not found.");
+                            Console.WriteLine($"Unable to send message to channel name '{channelName}'. Text channel not found.");
                         }
                     }
                     else
                     {
-                        Console.WriteLine($"Unable to send message to channel '{channelName}'. Guild not found.");
+                        Console.WriteLine($"Unable to send message to channel name '{channelName}'. Guild not found.");
                     }
                 }
                 else
                 {
-                    Console.WriteLine($"Unable to send message to channel '{channelName}'. Bot is not connected.");
+                    Console.WriteLine($"Unable to send message to channel name '{channelName}'. Bot is not connected.");
                 }
             });
         }
@@ -378,16 +538,18 @@ public class MainProgram
 
         public async Task HandleMessageAsync(SocketMessage arg)
         {
-
+          
             var message = arg as SocketUserMessage;
             if (message == null || message.Author == null || message.Author.IsBot)
             {
                 // Either the message is null or the author is null or the author is a bot, so we don't process it
                 return;
             }
+            // Trigger the event with the log message
 
-
-            Console.WriteLine($"Received message: {message.Content}");
+            string logMessage = $"[{DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss tt")}] {message.Author.Username}: {message.Content}";
+           // Console.WriteLine(logMessage);
+          
             int argPos = 0;
             string userfile = @"\UserCFG.ini";
             string botNickname = UserSettings(startupPath + userfile, "BotNickname");
@@ -398,6 +560,7 @@ public class MainProgram
                 string response = await GetOpenAiResponse(query);
                 await message.Channel.SendMessageAsync(response);
                 Console.WriteLine("Response sent");
+               
             }
             if (message.Content.ToLower().StartsWith("/roll"))
             {
@@ -565,6 +728,79 @@ public class MainProgram
                     await message.Channel.SendMessageAsync("You don't have permission to kick members.");
                 }
             }
+            if (message.Content.ToLower().StartsWith("/softban") && message.Author is SocketGuildUser authorSoftBan)
+            {
+                // Check if the author has the "Kick Members" or "Administrator" permission
+                if (authorSoftBan.GuildPermissions.Administrator || authorSoftBan.GuildPermissions.KickMembers)
+                {
+                    // Extract the mention from the message
+                    var mention = message.MentionedUsers.FirstOrDefault();
+
+                    // Check if a user is mentioned
+                    if (mention is SocketGuildUser userToSoftBan)
+                    {
+                        // Extract the reason from the command message (if provided)
+                        string[] commandParts = message.Content.Split(' ');
+                        string reason = (commandParts.Length > 2) ? string.Join(' ', commandParts.Skip(2)) : "No reason specified";
+                        await message.DeleteAsync();
+                        // Ban the mentioned user
+                        await userToSoftBan.Guild.AddBanAsync(userToSoftBan, 1, reason);
+
+                        // Unban the user immediately to perform a soft ban
+                        await userToSoftBan.Guild.RemoveBanAsync(userToSoftBan);
+
+                        // Log to console
+                        await message.Channel.SendMessageAsync($"{authorSoftBan.Mention} Softbanned 🤏{userToSoftBan.Username}#{userToSoftBan.Discriminator} from the server. Reason: {reason}");
+                        Console.WriteLine($"{authorSoftBan.Username} softbanned {userToSoftBan.Username}#{userToSoftBan.Discriminator} from the server. Reason: {reason}");
+                    }
+                    else
+                    {
+                        // Inform the user that no user was mentioned
+                        await message.Channel.SendMessageAsync("Please mention the user you want to softban, optionally add a reason after the username.");
+                    }
+                }
+                else
+                {
+                    // Inform the user that they don't have the necessary permission
+                    await message.Channel.SendMessageAsync("You don't have permission to soft ban members.");
+                }
+            }
+
+            if (message.Content.ToLower().StartsWith("/ban") && message.Author is SocketGuildUser authorban)
+            {
+                // Check if the author has the "Ban Members" or "Administrator" permission
+                if (authorban.GuildPermissions.Administrator || authorban.GuildPermissions.BanMembers)
+                {
+                    // Extract the mention from the message
+                    var mention = message.MentionedUsers.FirstOrDefault();
+
+                    // Check if a user is mentioned
+                    if (mention is SocketGuildUser userToBan)
+                    {
+                        // Extract the reason from the command message (if provided)
+                        string[] commandParts = message.Content.Split(' ');
+                        string reason = (commandParts.Length > 2) ? string.Join(' ', commandParts.Skip(2)) : "No reason specified";
+                        await message.DeleteAsync();
+                        // Ban the mentioned user with the provided reason
+                        await userToBan.BanAsync(reason: reason);
+
+                        // Log to console
+                        await message.Channel.SendMessageAsync($"{authorban.Mention} banned {userToBan.Username}#{userToBan.Discriminator}🔨 from the server. Reason: {reason}");
+                        Console.WriteLine($"{authorban.Username} banned {userToBan.Username}#{userToBan.Discriminator} from the server. Reason: {reason}");
+                    }
+                    else
+                    {
+                        // Inform the user that no user was mentioned
+                        await message.Channel.SendMessageAsync("Please mention the user you want to ban, optionally add a reason after the username.");
+                    }
+                }
+                else
+                {
+                    // Inform the user that they don't have the necessary permission
+                    await message.Channel.SendMessageAsync("You don't have permission to ban members.");
+                }
+            }
+
             if (message.Content.ToLower().StartsWith("/coinflip"))
             {
                 // Generate a random result (0 or 1) for heads or tails
@@ -673,11 +909,9 @@ public class MainProgram
                         // Get Pokemon Species
                         var speciesNode = doc.DocumentNode.SelectSingleNode("//th[contains(text(), 'Species')]/following-sibling::td");
                         string species = speciesNode?.InnerText.Trim() ?? "N/A";
-                        // Get National Pokédex number
+                        // Get National Pokédex number TODO Fix this...
                         var nationalDexNode = doc.DocumentNode.SelectSingleNode("//th[text()='National №']/following-sibling::td");
                         string nationalDexNumber = nationalDexNode?.InnerText.Trim() ?? "N/A";
-
-
 
                         // Define an array of possible image classes in descending order of preference
                         string[] imageClasses = { "img-fixed img-sprite-v21", "img-fixed img-sprite-v8", "img-fixed img-sprite-v3" };
@@ -742,7 +976,7 @@ public class MainProgram
                     }
                 }
             }
-
+            // Send intro message to welcome channel, TODO: Make GUI with an Embed builder to customize on user needs
             if (message.Content.ToLower().StartsWith("/intro") && message.Author is SocketGuildUser authorlive)
             {
                 string userfile2 = @"\UserCFG.ini";
@@ -751,18 +985,14 @@ public class MainProgram
                 string steam = UserSettings(startupPath + userfile2, "Steam"); // Steam link for intro message
                 string facebook = UserSettings(startupPath + userfile2, "Facebook"); // Facebook link for intro message
                 string permaInviteUrl = UserSettings(startupPath + userfile2, "InviteLink"); // Invite link for intro message
-                                                                                             // Delete the original command message
+                // Delete the original command message                                                                            
                 await message.DeleteAsync();
-
-                // Check if the author has the "Administrator" and your Defined Moderator permission (In CFG File)
-
-
                 string roleString = UserSettings(startupPath + userfile2, "ModeratorRole");
                 string role2String = UserSettings(startupPath + userfile2, "StreamerRole");
 
                 if (ulong.TryParse(roleString, out ulong modrole))
                 {
-
+                    // Check if the author has the "Administrator" and your Defined Moderator permission (In CFG File)
                     if (authorlive.GuildPermissions.Administrator || (authorlive.Roles.Any(r => r.Id == modrole)))
                     {
                         string welcome = "https://cdn-longterm.mee6.xyz/plugins/welcome_message/banners/1161640178218049536/welcome.gif";
@@ -921,7 +1151,7 @@ public class MainProgram
             }
             if (message.Content.ToLower().StartsWith("/live") && message.Author is SocketGuildUser authlive)
             {
-                // Check if the author has the "Administrator" permission
+                // Check if the author has the "Administrator" permission, Mod permissions, or Streamer permissions
 
                 string userfile2 = @"\UserCFG.ini";
                 string roleString = UserSettings(startupPath + userfile2, "ModeratorRole");
@@ -948,7 +1178,7 @@ public class MainProgram
                             string displayName = (message.Author as SocketGuildUser)?.DisplayName ?? message.Author.Username;
 
                             // Format the date and time as MonthName/day/year Time: hour:minute AM/PM
-                            string formattedDateTime = now.ToString("MMMM dd yyyy" + Environment.NewLine + "'Time:' h:mm tt");
+                            string formattedDateTime = now.ToString("MMMM dd,yyyy" + Environment.NewLine + "'Time:' h:mm tt");
 
                             // Delete the original command message
                             await message.DeleteAsync();
@@ -982,7 +1212,7 @@ public class MainProgram
 
             if (message.Content.ToLower().StartsWith("/purge") && message.Author is SocketGuildUser authPurge)
             {
-                // Check if the author has the "Administrator" permission or a specific moderator role
+                // Check if the author has the "Administrator" permission or moderator role
                 string userfile2 = @"\UserCFG.ini";
                 string roleString = UserSettings(startupPath + userfile2, "ModeratorRole");
 
@@ -990,8 +1220,8 @@ public class MainProgram
                 {
                     var isAdmin = (message.Author as SocketGuildUser)?.GuildPermissions.Administrator ?? false;
                     var hasSpecificRole = (message.Author as SocketGuildUser)?.Roles.Any(r => r.Id == xForceRole) ?? false;
-
-                    if (isAdmin || hasSpecificRole)
+                    var isBot = (message.Author as SocketGuildUser)?.IsBot ?? false;
+                    if (isAdmin || hasSpecificRole || isBot)
                     {
                         // Split the message content to get the number of messages to purge
                         string[] purgeArgs = message.Content.Split(' ');
@@ -1043,11 +1273,12 @@ public class MainProgram
             {
                 string userfile2 = @"\UserCFG.ini";
                 string roleString = UserSettings(startupPath + userfile2, "ModeratorRole");
-                // Check if the author is an administrator or has a specific role with role ID
+                // Check if the author is an administrator or has Moderator permissions/ID
 
                 if (ulong.TryParse(roleString, out ulong xForceRole))
                 {
                     var isAdmin = (message.Author as SocketGuildUser)?.GuildPermissions.Administrator ?? false;
+                  
                     var hasSpecificRole = (message.Author as SocketGuildUser)?.Roles.Any(r => r.Id == xForceRole) ?? false;
                     if (isAdmin || hasSpecificRole)
                     {
@@ -1104,13 +1335,19 @@ public class MainProgram
                 }
             }
 
-
+            MessageReception?.Invoke($"[{DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss tt")}] {message.Author.Username}: {message.Content}");
+            // Update chatLog
+            _instance.Invoke(new Action(() =>
+            {
+                _instance.chatLog.Text += logMessage + Environment.NewLine;
+            }));
 
         }
-       
+
         private async Task RegisterSlashCommands()
         {
             // Register your slash commands (Not required, easier for users as typing a / will show them all available commands on the server instead of having to type /help)
+            //TODO: Port over all existing /commands to register as slash commands
             var commands = new List<SlashCommandBuilder>
     {
         // Your existing commands here
@@ -1148,12 +1385,14 @@ public class MainProgram
                 foreach (var command in commands)
                 {
                     var builtCommand = command.Build();
-                    await _client.Rest.CreateGuildCommand(builtCommand, ServerId); // Replace YourGuildId with your actual guild ID
+                    await _client.Rest.CreateGuildCommand(builtCommand, ServerId); // Gets ServerID from UserCFG.ini
                 }
 
                 Console.WriteLine("Slash commands registered.");
             }
         }
+
+        //Future use, this will allow creation of embedded required files
         static void ExtractResourceToFile(string resourceName, string filePath)
         {
             try
@@ -1181,6 +1420,26 @@ public class MainProgram
                 Console.WriteLine($"Error extracting resource to file: {ex.Message}");
             }
         }
+        //Fix for flickering UI, not sure why O_O
+        private async Task UpdateUIAsync()
+        {
+            try
+            {
+                _instance.nsListView2?.BeginInvoke(new Action(async () =>
+                {
+                    if (_instance.nsListView2.IsHandleCreated)
+                    {
+                        await PopulateListViewWithConnectedUsersAsync();
+                    }
+                }));
+            }
+            catch (Exception ex)
+            {
+                // Handle or log the exception as needed
+                Console.WriteLine($"Error updating UI: {ex.Message}");
+            }
+        }
+
         private async Task UserJoined(SocketGuildUser user)
         {
             // Get all channels in the server
@@ -1190,7 +1449,7 @@ public class MainProgram
             var targetChannel = channels.FirstOrDefault(c => c is ITextChannel) as ITextChannel;
             var rules = channels.FirstOrDefault(c => c is ITextChannel && c.Name.Equals("welcome_channel", StringComparison.OrdinalIgnoreCase)) as ITextChannel;
             // Get the main channel by name (replace "main-channel" with your actual main channel name)
-            var mainChannel = channels.FirstOrDefault(c => c is ITextChannel && c.Name.Equals("main-channel", StringComparison.OrdinalIgnoreCase)) as ITextChannel;
+            var welcomeChannel = channels.FirstOrDefault(c => c is ITextChannel && c.Name.Equals("welcome_spam", StringComparison.OrdinalIgnoreCase)) as ITextChannel;
             string userfile2 = @"\UserCFG.ini";
             string roleString = UserSettings(startupPath + userfile2, "AutoRole");
 
@@ -1198,7 +1457,7 @@ public class MainProgram
             {
                 // Add the X-Force role to the user
                 await user.AddRoleAsync(xForceRole);
-                // Successfully converted to ulong, now you can use xForceRole
+        
                 Console.WriteLine("AutoRole Successful, user given new role.");
             }
             else
@@ -1209,13 +1468,13 @@ public class MainProgram
 
 
 
-
-            await mainChannel.SendMessageAsync($"HEYO! Welcome to the server {user.Mention}! Be sure to read the Rules in the " + rules.Mention + " !");
+          
+            await welcomeChannel.SendMessageAsync($"HEYO! Welcome to the server {user.Mention}! Be sure to read the Rules in the " + rules.Mention + " !");
+            // Invoke the UI update asynchronously
+            await UpdateUIAsync();
+      
             Console.WriteLine("Welcome message sent");
         }
-
-
-
 
         // Check if the user's ID matches the one you want to kick, just for the lawls
         //ulong userIdToKick = USERID;
