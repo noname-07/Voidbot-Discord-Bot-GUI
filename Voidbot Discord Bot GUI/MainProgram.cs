@@ -1,16 +1,16 @@
 ﻿using Discord;
+using Discord.Rest;
 using Discord.WebSocket;
+using Google.Apis.Services;
+using Google.Apis.YouTube.v3;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using Color = Discord.Color;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
-using Google.Apis.Services;
-using Google.Apis.YouTube.v3;
 using HtmlDocument = HtmlAgilityPack.HtmlDocument;
-using Discord.Rest;
 namespace Voidbot_Discord_Bot_GUI
 {
     public class MainProgram
@@ -28,7 +28,7 @@ namespace Voidbot_Discord_Bot_GUI
                 return _instance;
             }
         }
-       
+
 
         private DiscordSocketClient _client;
         // Expose _client through a property
@@ -63,7 +63,7 @@ namespace Voidbot_Discord_Bot_GUI
         public async Task LoadTasks()
         {
             // Load user settings from the INI file
-          
+
             string userfile = @"\UserCFG.ini";
             GptApiKey = UserSettings(startupPath + userfile, "GptApiKey");
             DiscordBotToken = UserSettings(startupPath + userfile, "DiscordBotToken");
@@ -106,7 +106,7 @@ namespace Voidbot_Discord_Bot_GUI
                 isBotRunning = true;
                 // Start the bot
                 await RunBotAsync();
-               
+
             }
         }
 
@@ -117,7 +117,7 @@ namespace Voidbot_Discord_Bot_GUI
                 isBotRunning = false;
                 // Stop the bot
                 await DisconnectBot();
-               
+
 
             }
         }
@@ -143,7 +143,7 @@ namespace Voidbot_Discord_Bot_GUI
         }
         public async Task RunBotAsync()
         {
-       
+
             //TODO Implement proper usage of CancellationTokenSource to handle connections/disconnections gracefully.
             cancellationTokenSource = new CancellationTokenSource();
 
@@ -171,7 +171,7 @@ namespace Voidbot_Discord_Bot_GUI
                 {
                     Console.WriteLine($"Disconnected from Discord, Attempting to reconnect shortly. Error: {exception?.Message}");
 
-                   
+
                     await Task.Delay(new Random().Next(3, 5) * 1000); // Add a delay to avoid rapid reconnection attempts, and that Discord Rest Limit xD
                     await StartBotAsync();
                 };
@@ -221,7 +221,7 @@ namespace Voidbot_Discord_Bot_GUI
             string logText = $"{DateTime.Now} [{arg.Severity}] {arg.Source}: {arg.Exception?.ToString() ?? arg.Message}";
 
             // Log to the console
-       
+
             // Trigger the event with the log message
             LogReceived?.Invoke(logText);
             // Save to the file
@@ -254,7 +254,7 @@ namespace Voidbot_Discord_Bot_GUI
 
         public async Task<List<RestBan>> GetBanList(ulong guildId)
         {
-          
+
             var guild = _client.GetGuild(guildId);
 
             if (guild != null)
@@ -276,7 +276,6 @@ namespace Voidbot_Discord_Bot_GUI
 
         public async Task PopulateListViewWithConnectedUsersAsync()
         {
-            
             Task.Run(async () =>
             {
                 while (true)
@@ -293,39 +292,38 @@ namespace Voidbot_Discord_Bot_GUI
                             // Fetch the list of connected users
                             var connectedUsers = (await GetConnectedUsersAsync(GuildID)).Cast<SocketUser>().ToList();
 
-                            _instance.nsListView2?.Invoke(new Action(() =>
+                            if (_instance.nsListView2?.IsHandleCreated == true)
                             {
-                                if (_instance.nsListView2.IsHandleCreated)
+                                _instance.nsListView2.SuspendLayout();
+
+                                foreach (var user in connectedUsers)
                                 {
-                                    foreach (var user in connectedUsers)
+                                    var nsListViewItem = _instance.nsListView2._Items.FirstOrDefault(item =>
+     item.Text == (user.GlobalName ?? user.Username));
+
+                                    if (nsListViewItem == null)
                                     {
-                                        var nsListViewItem = _instance.nsListView2._Items.FirstOrDefault(item => item.Text == user.Username);
-
-                                        if (nsListViewItem == null)
-                                        {
-                                            nsListViewItem = new NSListView.NSListViewItem();
-                                            nsListViewItem.Text = user.Username;
-
-                                            nsListViewItem.SubItems.Add(new NSListView.NSListViewSubItem { Text = user.Username });
-                                            nsListViewItem.SubItems.Add(new NSListView.NSListViewSubItem { Text = user.Id.ToString() });
-                                 
-                                            _instance.nsListView2._Items.Add(nsListViewItem);
-                                        }
-                                        else
-                                        {
-                                            // Update existing item if needed
-                                          
-                                            nsListViewItem.SubItems[0].Text = user.Username + " #" + user.Discriminator;
-                                            nsListViewItem.SubItems[1].Text = user.Id.ToString();
-
-                                        }
+                                        // Create a new item only if it doesn't exist
+                                        nsListViewItem = new NSListView.NSListViewItem();
+                                        nsListViewItem.Text = user.GlobalName ?? user.Username;
+                                        _instance.nsListView2.AddItem(nsListViewItem.Text, user.Username, user.Id.ToString());
                                     }
-
-                                    _instance.nsListView2.InvalidateLayout();
-
+                                    else
+                                    {
+                                        // Update the existing item with the new information
+                                        nsListViewItem.Text = user.GlobalName ?? user.Username;
+                                        nsListViewItem.SubItems[1].Text = user.Username;
+                                        nsListViewItem.SubItems[2].Text = user.Id.ToString();
+                                    }
                                 }
-                            }));
 
+                                _instance.nsListView2.InvalidateLayout();
+                                _instance.nsListView2.ResumeLayout();
+                                _instance.nsLabel29.Value1 = _instance.nsListView2.Items.Length.ToString();
+
+
+
+                            }
                         }
                         else
                         {
@@ -337,8 +335,9 @@ namespace Voidbot_Discord_Bot_GUI
                     await Task.Delay(5000);
                 }
             });
-
         }
+
+
         public async Task PopulateListViewWithBannedUsers()
         {
             Task.Run(async () =>
@@ -357,39 +356,37 @@ namespace Voidbot_Discord_Bot_GUI
                             // Get the ban list for the guild
                             var bans = await GetBanList(GuildID);
 
-                            // Safely update the ListView items only if there are changes
-                            _instance.nsListView1?.Invoke(new Action(() =>
+                            if (_instance.nsListView1?.IsHandleCreated == true)
                             {
-                                if (_instance.nsListView1.IsHandleCreated)
+                                _instance.nsListView1.SuspendLayout();
+
+                                foreach (var ban in bans)
                                 {
-                                    foreach (var ban in bans)
+
+                                    var nsListViewItem = _instance.nsListView1._Items.FirstOrDefault(item =>
+                                       item.Text == (ban.User.GlobalName ?? ban.User.Username));
+                                    if (nsListViewItem == null)
                                     {
-                                        var nsListViewItem = _instance.nsListView1._Items.FirstOrDefault(item => item.Text == ban.User.Username);
+                                        // Create a new item only if it doesn't exist
+                                        nsListViewItem = new NSListView.NSListViewItem();
+                                        nsListViewItem.Text = ban.User.GlobalName ?? ban.User.Username;
 
-                                        if (nsListViewItem == null)
-                                        {
-                                            nsListViewItem = new NSListView.NSListViewItem();
-                                            nsListViewItem.Text = ban.User.Username;
-                                            nsListViewItem.SubItems.Add(new NSListView.NSListViewSubItem { Text = ban.User.Username + " #" + ban.User.Discriminator });
-                                            nsListViewItem.SubItems.Add(new NSListView.NSListViewSubItem { Text = ban.User.Id.ToString() });
-                                            nsListViewItem.SubItems.Add(new NSListView.NSListViewSubItem { Text = ban.Reason });
-                                            _instance.nsListView1._Items.Add(nsListViewItem);
-                                        }
-                                        else
-                                        {
-                                            // Update existing item if needed
-                                            nsListViewItem.SubItems[0].Text = ban.User.Username + " #" + ban.User.Discriminator;
-                                            nsListViewItem.SubItems[1].Text = ban.User.Id.ToString();
-                                            nsListViewItem.SubItems[2].Text = ban.Reason;
-
-                                        }
+                                        // Use AddItem for _instance.nsListView1
+                                        _instance.nsListView1.AddItem(nsListViewItem.Text, ban.User.Username + " #" + ban.User.Discriminator, ban.User.Id.ToString(), ban.Reason);
                                     }
-
-                                    _instance.nsListView1.InvalidateLayout();
-                                  
+                                    else
+                                    {
+                                        // Update existing item if needed
+                                        nsListViewItem.SubItems[0].Text = ban.User.Username + " #" + ban.User.Discriminator;
+                                        nsListViewItem.SubItems[1].Text = ban.User.Id.ToString();
+                                        nsListViewItem.SubItems[2].Text = ban.Reason;
+                                    }
                                 }
-                            }));
 
+                                _instance.nsListView1.InvalidateLayout();
+                                _instance.nsListView1.ResumeLayout();
+                                _instance.nsLabel30.Value1 = _instance.nsListView1.Items.Length.ToString();
+                            }
                         }
                         else
                         {
@@ -402,6 +399,8 @@ namespace Voidbot_Discord_Bot_GUI
                 }
             });
         }
+
+
 
         // Helper method to get connected users
         private async Task<List<SocketGuildUser>> GetConnectedUsersAsync(ulong guildId)
@@ -487,13 +486,13 @@ namespace Voidbot_Discord_Bot_GUI
         {
             await Task.Run(async () =>
             {
-            while (true)
-            {
-                string channelName = _instance.nsComboBox1.SelectedItem?.ToString();
+                while (true)
+                {
+                    string channelName = _instance.nsComboBox1.SelectedItem?.ToString();
 
-            // Call the main method with the obtained channelName
-            await SendMessageToDiscord(message, channelName);
-                    }
+                    // Call the main method with the obtained channelName
+                    await SendMessageToDiscord(message, channelName);
+                }
             });
         }
 
@@ -538,7 +537,7 @@ namespace Voidbot_Discord_Bot_GUI
 
         public async Task HandleMessageAsync(SocketMessage arg)
         {
-          
+
             var message = arg as SocketUserMessage;
             if (message == null || message.Author == null || message.Author.IsBot)
             {
@@ -548,9 +547,6 @@ namespace Voidbot_Discord_Bot_GUI
             // Trigger the event with the log message
 
             string logMessage = $"[{DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss tt")}] {message.Author.Username}: {message.Content}";
-           // Console.WriteLine(logMessage);
-          
-            int argPos = 0;
             string userfile = @"\UserCFG.ini";
             string botNickname = UserSettings(startupPath + userfile, "BotNickname");
 
@@ -560,7 +556,7 @@ namespace Voidbot_Discord_Bot_GUI
                 string response = await GetOpenAiResponse(query);
                 await message.Channel.SendMessageAsync(response);
                 Console.WriteLine("Response sent");
-               
+
             }
             if (message.Content.ToLower().StartsWith("/roll"))
             {
@@ -1278,7 +1274,7 @@ namespace Voidbot_Discord_Bot_GUI
                 if (ulong.TryParse(roleString, out ulong xForceRole))
                 {
                     var isAdmin = (message.Author as SocketGuildUser)?.GuildPermissions.Administrator ?? false;
-                  
+
                     var hasSpecificRole = (message.Author as SocketGuildUser)?.Roles.Any(r => r.Id == xForceRole) ?? false;
                     if (isAdmin || hasSpecificRole)
                     {
@@ -1457,7 +1453,7 @@ namespace Voidbot_Discord_Bot_GUI
             {
                 // Add the X-Force role to the user
                 await user.AddRoleAsync(xForceRole);
-        
+
                 Console.WriteLine("AutoRole Successful, user given new role.");
             }
             else
@@ -1468,11 +1464,11 @@ namespace Voidbot_Discord_Bot_GUI
 
 
 
-          
+
             await welcomeChannel.SendMessageAsync($"HEYO! Welcome to the server {user.Mention}! Be sure to read the Rules in the " + rules.Mention + " !");
             // Invoke the UI update asynchronously
             await UpdateUIAsync();
-      
+
             Console.WriteLine("Welcome message sent");
         }
 

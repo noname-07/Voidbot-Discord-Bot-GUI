@@ -40,6 +40,7 @@ namespace Voidbot_Discord_Bot_GUI
             botInstance.BotConnected += OnBotConnected;
             botInstance.MessageReception += SaveChatLogs;
         }
+
         public class TextBoxWriter : TextWriter
         {
             private System.Windows.Forms.TextBox textBox;
@@ -835,7 +836,7 @@ namespace Voidbot_Discord_Bot_GUI
                 return;
             }
 
-
+            Console.WriteLine($"Subitem Count: {nsListView2._Items.Count}");
             if (nsListView2.SelectedItems != null && nsListView2.Items.Length > 0)
             {
                 var selectedItem = nsListView2.SelectedItems[0];

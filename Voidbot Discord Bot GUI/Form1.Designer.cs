@@ -99,6 +99,7 @@
             nsLabel21 = new NSLabel();
             tabPage3 = new TabPage();
             nsGroupBox10 = new NSGroupBox();
+            nsLabel29 = new NSLabel();
             nsLabel28 = new NSLabel();
             nsGroupBox12 = new NSGroupBox();
             nsButton12 = new NSButton();
@@ -131,6 +132,7 @@
             nsContextMenu1 = new NSContextMenu();
             openBotPanelToolStripMenuItem = new ToolStripMenuItem();
             closeBotToolStripMenuItem = new ToolStripMenuItem();
+            nsLabel30 = new NSLabel();
             nsTabControl1.SuspendLayout();
             tabPage1.SuspendLayout();
             nsGroupBox3.SuspendLayout();
@@ -996,6 +998,8 @@
             // nsGroupBox10
             // 
             nsGroupBox10.BackColor = Color.FromArgb(30, 30, 30);
+            nsGroupBox10.Controls.Add(nsLabel30);
+            nsGroupBox10.Controls.Add(nsLabel29);
             nsGroupBox10.Controls.Add(nsLabel28);
             nsGroupBox10.Controls.Add(nsGroupBox12);
             nsGroupBox10.Controls.Add(nsGroupBox11);
@@ -1014,15 +1018,26 @@
             nsGroupBox10.Text = "nsGroupBox10";
             nsGroupBox10.Title = "";
             // 
+            // nsLabel29
+            // 
+            nsLabel29.Font = new Font("Segoe UI Semibold", 11F, FontStyle.Bold);
+            nsLabel29.Location = new Point(675, 8);
+            nsLabel29.Name = "nsLabel29";
+            nsLabel29.Size = new Size(81, 17);
+            nsLabel29.TabIndex = 56;
+            nsLabel29.Text = "nsLabel29";
+            nsLabel29.Value1 = "";
+            nsLabel29.Value2 = " ";
+            // 
             // nsLabel28
             // 
             nsLabel28.Font = new Font("Segoe UI Semibold", 11F, FontStyle.Bold);
-            nsLabel28.Location = new Point(547, 12);
+            nsLabel28.Location = new Point(548, 8);
             nsLabel28.Name = "nsLabel28";
             nsLabel28.Size = new Size(208, 17);
             nsLabel28.TabIndex = 55;
             nsLabel28.Text = "nsLabel28";
-            nsLabel28.Value1 = "Connected Users";
+            nsLabel28.Value1 = "Server Members |";
             nsLabel28.Value2 = " ";
             // 
             // nsGroupBox12
@@ -1263,7 +1278,7 @@
             // nsLabel26
             // 
             nsLabel26.Font = new Font("Segoe UI Semibold", 11F, FontStyle.Bold);
-            nsLabel26.Location = new Point(4, 8);
+            nsLabel26.Location = new Point(6, 8);
             nsLabel26.Name = "nsLabel26";
             nsLabel26.Size = new Size(265, 17);
             nsLabel26.TabIndex = 44;
@@ -1273,18 +1288,18 @@
             // 
             // nsListView2
             // 
-            nsListView2.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            nsListView2.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             nsListView2.ForeColor = Color.White;
-            nsListView2.Location = new Point(546, 7);
-            nsListView2.MultiSelect = false;
+            nsListView2.Location = new Point(546, 5);
+            nsListView2.MultiSelect = true;
             nsListView2.Name = "nsListView2";
-            nsListView2.Size = new Size(230, 215);
+            nsListView2.Size = new Size(230, 217);
             nsListView2.TabIndex = 49;
             nsListView2.Text = "nsListView2";
             // 
             // nsListView1
             // 
-            nsListView1.Font = new Font("Segoe UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            nsListView1.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             nsListView1.ForeColor = Color.White;
             nsListView1.Location = new Point(4, 5);
             nsListView1.MultiSelect = false;
@@ -1357,6 +1372,17 @@
             closeBotToolStripMenuItem.Size = new Size(156, 22);
             closeBotToolStripMenuItem.Text = "Close Bot...";
             closeBotToolStripMenuItem.Click += closeBotToolStripMenuItem_Click;
+            // 
+            // nsLabel30
+            // 
+            nsLabel30.Font = new Font("Segoe UI Semibold", 11F, FontStyle.Bold);
+            nsLabel30.Location = new Point(115, 8);
+            nsLabel30.Name = "nsLabel30";
+            nsLabel30.Size = new Size(81, 17);
+            nsLabel30.TabIndex = 57;
+            nsLabel30.Text = "nsLabel30";
+            nsLabel30.Value1 = "";
+            nsLabel30.Value2 = " ";
             // 
             // Form1
             // 
@@ -1500,5 +1526,7 @@
         private NSButton nsButton11;
         private NSComboBox nsComboBox2;
         private NSButton nsButton12;
+        public NSLabel nsLabel29;
+        public NSLabel nsLabel30;
     }
 }

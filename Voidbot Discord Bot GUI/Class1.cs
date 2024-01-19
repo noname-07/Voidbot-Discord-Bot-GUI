@@ -3196,17 +3196,7 @@ namespace Voidbot_Discord_Bot_GUI
     // sick act of masochism by studying the source of the ListView then, may god have mercy on your soul.
     public class NSListView : Control
     {
-        // Custom event handler delegate for selection change
-        public delegate void SelectedIndexChangedHandler(object sender, EventArgs e);
-        public event SelectedIndexChangedHandler SelectedIndexChanged;
 
-        // ... (rest of your code)
-
-        // Call this method when the selection changes
-        protected virtual void OnSelectedIndexChanged(EventArgs e)
-        {
-            SelectedIndexChanged?.Invoke(this, e);
-        }
         public class NSListViewItem
         {
             public string Text { get; set; }
@@ -3385,6 +3375,17 @@ namespace Voidbot_Discord_Bot_GUI
 
         private NSVScrollBar VS;
 
+        // Custom event handler delegate for selection change
+        public delegate void SelectedIndexChangedHandler(object sender, EventArgs e);
+        public event SelectedIndexChangedHandler SelectedIndexChanged;
+
+        // ... (rest of your code)
+
+        // Call this method when the selection changes
+        protected virtual void OnSelectedIndexChanged(EventArgs e)
+        {
+            SelectedIndexChanged?.Invoke(this, e);
+        }
         public NSListView()
         {
             SetStyle((ControlStyles)139286, true);
@@ -3488,16 +3489,14 @@ namespace Voidbot_Discord_Bot_GUI
                         _SelectedItems.Add(_Items[Index]);
                     }
 
-                    // Notify about the selection change
-                    OnSelectedIndexChanged(EventArgs.Empty);
                 }
-
+                // Notify about the selection change
+                OnSelectedIndexChanged(EventArgs.Empty);
                 Invalidate();
             }
 
             base.OnMouseDown(e);
         }
-
 
         public Pen P1, P2, P3;
         public SolidBrush B1, B2, B3, B4;
