@@ -44,7 +44,7 @@ the botname contained anywhere in the string will also return a reply from the b
 
 /softban @mentionuser <optional reason> [This will kick the mentioned user, and prune their messages from last 7 days]
 
-/purge [Purge/delete the last 100 messages in a channel, and filters out those older than two weeks and deletes them. Good for clearing spam, or refreshing chat.]
+/purge <number to delete> [Purge/delete the last x amount of messages in a channel, and filters out those older than two weeks and deletes them. Good for clearing spam, or refreshing chat.]
 
 /updatemsg <update message here> [Update the server with an embed with the title 📰 Server Update Information 📰 and your message being under in the desciption(I use this to post neat and tidy server update information for my members to review)]
 
@@ -54,6 +54,5 @@ the botname contained anywhere in the string will also return a reply from the b
 [Twitch/YT/FB Gaming Streamer Role Commands(Your defined Streamer role "ID" in UserCFG.ini)]
 
 /live <twitch username> <Game Name> [Sends a global @everyone mention that displays your twitch url and video feed, along with the given Game name]
-
 
 
