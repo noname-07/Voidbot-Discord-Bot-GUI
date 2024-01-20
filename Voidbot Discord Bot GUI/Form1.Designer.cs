@@ -99,6 +99,7 @@
             nsLabel21 = new NSLabel();
             tabPage3 = new TabPage();
             nsGroupBox10 = new NSGroupBox();
+            nsLabel30 = new NSLabel();
             nsLabel29 = new NSLabel();
             nsLabel28 = new NSLabel();
             nsGroupBox12 = new NSGroupBox();
@@ -132,7 +133,6 @@
             nsContextMenu1 = new NSContextMenu();
             openBotPanelToolStripMenuItem = new ToolStripMenuItem();
             closeBotToolStripMenuItem = new ToolStripMenuItem();
-            nsLabel30 = new NSLabel();
             nsTabControl1.SuspendLayout();
             tabPage1.SuspendLayout();
             nsGroupBox3.SuspendLayout();
@@ -736,9 +736,8 @@
             label2.ForeColor = Color.FromArgb(192, 0, 0);
             label2.Location = new Point(265, 36);
             label2.Name = "label2";
-            label2.Size = new Size(134, 21);
+            label2.Size = new Size(0, 21);
             label2.TabIndex = 28;
-            label2.Text = "Not Connected...";
             // 
             // label1
             // 
@@ -768,6 +767,7 @@
             // 
             // nsButton3
             // 
+            nsButton3.Enabled = false;
             nsButton3.Font = new Font("Segoe UI", 14.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
             nsButton3.Location = new Point(244, 45);
             nsButton3.Name = "nsButton3";
@@ -854,6 +854,7 @@
             // botConsoleView
             // 
             botConsoleView.BackColor = Color.Black;
+            botConsoleView.BorderStyle = BorderStyle.FixedSingle;
             botConsoleView.ForeColor = Color.White;
             botConsoleView.Location = new Point(3, 44);
             botConsoleView.Multiline = true;
@@ -945,7 +946,6 @@
             nsComboBox1.DropDownStyle = ComboBoxStyle.DropDownList;
             nsComboBox1.ForeColor = Color.White;
             nsComboBox1.FormattingEnabled = true;
-            nsComboBox1.Items.AddRange(new object[] { "main-channel" });
             nsComboBox1.Location = new Point(5, 35);
             nsComboBox1.Name = "nsComboBox1";
             nsComboBox1.Size = new Size(232, 24);
@@ -1018,6 +1018,17 @@
             nsGroupBox10.Text = "nsGroupBox10";
             nsGroupBox10.Title = "";
             // 
+            // nsLabel30
+            // 
+            nsLabel30.Font = new Font("Segoe UI Semibold", 11F, FontStyle.Bold);
+            nsLabel30.Location = new Point(115, 8);
+            nsLabel30.Name = "nsLabel30";
+            nsLabel30.Size = new Size(81, 17);
+            nsLabel30.TabIndex = 57;
+            nsLabel30.Text = "nsLabel30";
+            nsLabel30.Value1 = "";
+            nsLabel30.Value2 = " ";
+            // 
             // nsLabel29
             // 
             nsLabel29.Font = new Font("Segoe UI Semibold", 11F, FontStyle.Bold);
@@ -1063,6 +1074,7 @@
             // 
             // nsButton12
             // 
+            nsButton12.Enabled = false;
             nsButton12.Location = new Point(59, 186);
             nsButton12.Name = "nsButton12";
             nsButton12.Size = new Size(55, 23);
@@ -1126,6 +1138,7 @@
             // 
             // nsButton9
             // 
+            nsButton9.Enabled = false;
             nsButton9.Location = new Point(120, 186);
             nsButton9.Name = "nsButton9";
             nsButton9.Size = new Size(105, 23);
@@ -1135,6 +1148,7 @@
             // 
             // nsButton10
             // 
+            nsButton10.Enabled = false;
             nsButton10.Location = new Point(9, 186);
             nsButton10.Name = "nsButton10";
             nsButton10.Size = new Size(44, 23);
@@ -1239,6 +1253,7 @@
             // 
             // nsButton8
             // 
+            nsButton8.Enabled = false;
             nsButton8.Location = new Point(124, 186);
             nsButton8.Name = "nsButton8";
             nsButton8.Size = new Size(108, 23);
@@ -1248,6 +1263,7 @@
             // 
             // nsButton7
             // 
+            nsButton7.Enabled = false;
             nsButton7.Location = new Point(10, 186);
             nsButton7.Name = "nsButton7";
             nsButton7.Size = new Size(63, 23);
@@ -1322,12 +1338,12 @@
             // chatLog
             // 
             chatLog.ForeColor = Color.White;
-            chatLog.Location = new Point(4, 254);
+            chatLog.Location = new Point(6, 254);
             chatLog.MaxLength = 32767;
             chatLog.Multiline = true;
             chatLog.Name = "chatLog";
             chatLog.ReadOnly = true;
-            chatLog.Size = new Size(1019, 223);
+            chatLog.Size = new Size(1013, 216);
             chatLog.TabIndex = 39;
             chatLog.TextAlign = HorizontalAlignment.Left;
             chatLog.UseSystemPasswordChar = false;
@@ -1372,17 +1388,6 @@
             closeBotToolStripMenuItem.Size = new Size(156, 22);
             closeBotToolStripMenuItem.Text = "Close Bot...";
             closeBotToolStripMenuItem.Click += closeBotToolStripMenuItem_Click;
-            // 
-            // nsLabel30
-            // 
-            nsLabel30.Font = new Font("Segoe UI Semibold", 11F, FontStyle.Bold);
-            nsLabel30.Location = new Point(115, 8);
-            nsLabel30.Name = "nsLabel30";
-            nsLabel30.Size = new Size(81, 17);
-            nsLabel30.TabIndex = 57;
-            nsLabel30.Text = "nsLabel30";
-            nsLabel30.Value1 = "";
-            nsLabel30.Value2 = " ";
             // 
             // Form1
             // 

@@ -101,11 +101,7 @@ namespace Voidbot_Discord_Bot_GUI
 
         private void OnBotDisconnected(string message)
         {
-            Invoke(new Action(() =>
-            {
-                label2.Text = message;
-                label2.ForeColor = System.Drawing.Color.Red;
-            }));
+
 
         }
         private async Task Outputcmd()
@@ -180,20 +176,23 @@ namespace Voidbot_Discord_Bot_GUI
                 }
             });
         }
-        void UpdateLabel(ConnectionState currentState)
+        private void UpdateLabel(ConnectionState currentState)
         {
-            if (currentState == ConnectionState.Connected)
-            {
-                label2.Text = GetConnectionStatusMessage(botInstance.DiscordClient.ConnectionState);
+            string statusMessage = GetConnectionStatusMessage(currentState);
 
-                label2.ForeColor = System.Drawing.Color.LimeGreen;
-            }
-            else
+            Invoke(new Action(() =>
             {
-                label2.Text = GetConnectionStatusMessage(botInstance.DiscordClient.ConnectionState);
-
-                label2.ForeColor = System.Drawing.Color.DarkRed;
-            }
+                if (currentState == ConnectionState.Connected)
+                {
+                    label2.Text = statusMessage;
+                    label2.ForeColor = System.Drawing.Color.LimeGreen;
+                }
+                else
+                {
+                    label2.Text = statusMessage;
+                    label2.ForeColor = System.Drawing.Color.Red;
+                }
+            }));
         }
         private string GetConnectionStatusMessage(ConnectionState connectionState)
         {
@@ -248,25 +247,41 @@ namespace Voidbot_Discord_Bot_GUI
         {
             Task.Run(async () =>
             {
-                // Add other buttons to enable on bot connect/disconnect
-                var buttonsToCheck = new[] { consolebtnSend, nsButton11 };
-
                 while (true)
                 {
+                    if (nsButton2.InvokeRequired)
+                    {
+                        nsButton2.Invoke((MethodInvoker)delegate
+                        {
+                            // Enable nsButton2 if the bot is disconnected, otherwise disable it
+                            nsButton2.Enabled = botInstance.DiscordClient == null ||
+                                                botInstance.DiscordClient.ConnectionState != ConnectionState.Connected;
+                        });
+                    }
+                    else
+                    {
+                        // Enable nsButton2 if the bot is disconnected, otherwise disable it
+                        nsButton2.Enabled = botInstance.DiscordClient == null ||
+                                            botInstance.DiscordClient.ConnectionState != ConnectionState.Connected;
+                    }
+
+                    // Add other buttons to enable/disable on bot connect/disconnect
+                    var buttonsToCheck = new[] { consolebtnSend, nsButton3, nsButton7, nsButton8, nsButton9, nsButton10, nsButton11, nsButton12 };
+
                     foreach (var button in buttonsToCheck)
                     {
                         if (button.InvokeRequired)
                         {
                             button.Invoke((MethodInvoker)delegate
                             {
-                                // Check if the bot is connected before enabling the button
+                                // Check if the bot is connected before enabling/disabling the button
                                 button.Enabled = botInstance.DiscordClient != null &&
                                                   botInstance.DiscordClient.ConnectionState == ConnectionState.Connected;
                             });
                         }
                         else
                         {
-                            // Check if the bot is connected before enabling the button
+                            // Check if the bot is connected before enabling/disabling the button
                             button.Enabled = botInstance.DiscordClient != null &&
                                               botInstance.DiscordClient.ConnectionState == ConnectionState.Connected;
                         }
@@ -278,10 +293,11 @@ namespace Voidbot_Discord_Bot_GUI
                     }
 
                     // Wait for a short interval before checking again, Discord Rate Limits and all
-                    await Task.Delay(1000);
+                    await Task.Delay(3000);
                 }
             });
         }
+
 
 
         private async Task GetBotStatus()
@@ -399,7 +415,7 @@ namespace Voidbot_Discord_Bot_GUI
                     label2.ForeColor = System.Drawing.Color.LimeGreen;
                     nsButton2.Enabled = false;
                     nsButton1.Enabled = false;
-                    nsButton11.Enabled = true;
+                    nsButton2.Enabled = false;
 
                     GptApiKey.Enabled = false;
                     YoutubeAPIKey.Enabled = false;
@@ -439,9 +455,9 @@ namespace Voidbot_Discord_Bot_GUI
                 {
                     label2.Text = " Disconnected...";
                     label2.ForeColor = System.Drawing.Color.Red;
-                    nsButton2.Enabled = true;
+
                     nsButton1.Enabled = true;
-                    nsButton11.Enabled = false;
+                    nsButton3.Enabled = false;
                     pictureBox1.Image = Resources._2451296;
                     nsLabel22.Value2 = " Offline";
                     nsLabel20.Value2 = " ";
@@ -460,10 +476,44 @@ namespace Voidbot_Discord_Bot_GUI
                     StreamerRole.Enabled = true;
                     BotNickname.Enabled = true;
                     BotPersonality.Enabled = true;
+
                     // You can stop, or recreate the botInstance
 
 
                 }));
+                // Perform cleanup and stop the bot (add your bot stopping logic here)
+
+
+                // Clear the NSListView controls on the UI thread
+                Invoke(new Action(() =>
+                {
+                    // Manually remove items from nsListView2
+                    if (nsListView2?.IsHandleCreated == true)
+                    {
+                        nsListView2.BeginInvoke(new Action(() =>
+                        {
+                            while (nsListView2.Items.Length > 0)
+                            {
+                                nsListView2.RemoveItemAt(0);
+                            }
+                            nsLabel29.Value1 = "0"; // Update label to show 0 items
+                        }));
+                    }
+
+                    // Use RemoveItemAt(0) for nsListView1
+                    if (nsListView1?.IsHandleCreated == true)
+                    {
+                        nsListView1.BeginInvoke(new Action(() =>
+                        {
+                            while (nsListView1.Items.Length > 0)
+                            {
+                                nsListView1.RemoveItemAt(0);
+                            }
+                            nsLabel30.Value1 = "0"; // Update label to show 0 items
+                        }));
+                    }
+                }));
+
                 await botInstance.StopBot();
             }
 
@@ -810,7 +860,7 @@ namespace Voidbot_Discord_Bot_GUI
             }
 
 
-            if (nsListView1.SelectedItems != null)
+            if (nsListView1.SelectedItems != null && nsListView1._SelectedItems.Count > 0)
             {
                 var selectedItem = nsListView1.SelectedItems[0];
 
@@ -850,7 +900,7 @@ namespace Voidbot_Discord_Bot_GUI
             }
 
             //Console.WriteLine($"Subitem Count: {nsListView2._Items.Count}");
-            if (nsListView2.SelectedItems != null && nsListView2.Items.Length > 0)
+            if (nsListView2.SelectedItems != null && nsListView2._SelectedItems.Count > 0)
             {
                 var selectedItem = nsListView2.SelectedItems[0];
 
@@ -1049,24 +1099,34 @@ namespace Voidbot_Discord_Bot_GUI
         }
         private void nsButton8_Click(object sender, EventArgs e)
         {
-            if (!string.IsNullOrEmpty(label6.Text) && !string.IsNullOrEmpty(label7.Text))
+            if (nsListView1.SelectedItems != null && nsListView1._SelectedItems.Count > 0)
             {
                 // Your code here
                 SaveGlobalBanList($"Username: {label6.Text} | UserID: {label7.Text}");
-                chatLog.AppendText($"Saved Ban Entry [Username: {label6.Text} | UserID: {label7.Text}]" + Environment.NewLine);
+
+                // Check if chatLog already has text and add a newline accordingly
+                if (!string.IsNullOrEmpty(chatLog.Text))
+                {
+                    chatLog.AppendText(Environment.NewLine);
+                }
+
+                chatLog.AppendText($"Saved Ban Entry [Username: {label6.Text} | UserID: {label7.Text}]");
             }
             else
             {
-                chatLog.AppendText("No user selected, Please select a user to save to the Global Bans list.");
+                // Check if chatLog already has text and add a newline accordingly
+                if (!string.IsNullOrEmpty(chatLog.Text))
+                {
+                    chatLog.AppendText(Environment.NewLine);
+                }
+                chatLog.AppendText("[SYSTEM MESSAGE] No user selected, Please select a user to add to the Global Bans list.");
             }
-
-
         }
+
 
         private async void nsButton10_Click(object sender, EventArgs e)
         {
-
-
+            // Check if a user is selected
             if (nsListView2.SelectedItems != null && nsListView2._SelectedItems.Count > 0)
             {
                 var selectedItem = nsListView2.SelectedItems[0];
@@ -1089,34 +1149,36 @@ namespace Voidbot_Discord_Bot_GUI
 
                             if (ban == null)
                             {
-                                // User is not banned, proceed with kicking
-                                Console.WriteLine($"Bot Kicked 🦵: {userId}" + " from the server. D:");
-                                chatLog.AppendText($"Bot Kicked 🦵: {userId}" + " from the server. D:");
-                                await guild.AddBanAsync(userId, 0, label11.Text);
+                                // Ask for confirmation before kicking
+                                DialogResult result = MessageBox.Show($"Are you sure you want to kick user {userId}?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
-                                await guild.RemoveBanAsync(userId);
-                                // Invoke UI updates for other UI elements
-                                Invoke(new Action(() =>
+                                if (result == DialogResult.Yes)
                                 {
-                                    // Update other UI elements here, e.g., labels
-                                    label6.Text = "";
-                                    label7.Text = "";
-                                }));
+                                    // User confirmed, proceed with kicking
+                                    Console.WriteLine($"Bot Kicked 🦵: {userId}" + " from the server. D:");
+                                    chatLog.AppendText($"Bot Kicked 🦵: {userId}" + " from the server. D:");
+                                    await guild.AddBanAsync(userId, 0, label11.Text);
+                                    await guild.RemoveBanAsync(userId);
 
+                                    // Invoke UI updates for other UI elements
+                                    Invoke(new Action(() =>
+                                    {
+                                        // Update other UI elements here, e.g., labels
+                                        label6.Text = "";
+                                        label7.Text = "";
+                                    }));
 
-                                nsListView2.BeginInvoke(new Action(() =>
-                                {
-                                    nsListView2._Items.Remove(selectedItem);
-
-
-                                    nsListView2.InvalidateLayout();
-
-
-                                }));
+                                    nsListView2.BeginInvoke(new Action(() =>
+                                    {
+                                        nsListView2._Items.Remove(selectedItem);
+                                        nsListView2.InvalidateLayout();
+                                    }));
+                                }
+                                // If 'No' is pressed, do nothing
                             }
                             else
                             {
-                                //do nothing, they're just being kicked
+                                // User is already banned, do nothing
                             }
                         }
                         else
@@ -1131,7 +1193,7 @@ namespace Voidbot_Discord_Bot_GUI
                 }
                 else
                 {
-                    Console.WriteLine("No user selected, Please select a user to kick");
+                    Console.WriteLine("No user selected. Please select a user to kick");
                 }
             }
             else
@@ -1139,9 +1201,8 @@ namespace Voidbot_Discord_Bot_GUI
                 // Handle the case where no user is selected
                 MessageBox.Show("No user selected. Please select a user to kick.");
             }
-
-
         }
+
 
 
         private async Task<ulong> GetChannelIdByName(string channelName)

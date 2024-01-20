@@ -231,11 +231,10 @@ namespace Voidbot_Discord_Bot_GUI
         {
             // Append the log message to the file
             string logText = $"{DateTime.Now} [{arg.Severity}] {arg.Source}: {arg.Exception?.ToString() ?? arg.Message}";
-
-            // Log to the console
-
             // Trigger the event with the log message
             LogReceived?.Invoke(logText);
+
+
             // Save to the file
             string filePath = Path.Combine(startupPath, "bot_logs.txt");
 
@@ -288,128 +287,225 @@ namespace Voidbot_Discord_Bot_GUI
 
         public async Task PopulateListViewWithConnectedUsersAsync()
         {
-            Task.Run(async () =>
+            try
             {
-                while (true)
+                Task.Run(async () =>
                 {
-                    // Check if the form is still accessible before updating the UI
-                    if (_instance != null && !_instance.IsDisposed)
+                    while (true)
                     {
-                        string userfile2 = @"\UserCFG.ini";
-                        string GuildIDString = UserSettings(startupPath + userfile2, "ServerID"); // Your Server ID as string
-
-                        // Convert string to ulong
-                        if (ulong.TryParse(GuildIDString, out ulong GuildID))
+                        // Check if the form is still accessible before updating the UI
+                        if (_instance != null && !_instance.IsDisposed)
                         {
-                            // Fetch the list of connected users
-                            var connectedUsers = (await GetConnectedUsersAsync(GuildID)).Cast<SocketUser>().ToList();
+                            string userfile2 = @"\UserCFG.ini";
+                            string GuildIDString = UserSettings(startupPath + userfile2, "ServerID"); // Your Server ID as string
 
-                            if (_instance.nsListView2?.IsHandleCreated == true)
+                            // Convert string to ulong
+                            if (ulong.TryParse(GuildIDString, out ulong GuildID))
                             {
-                                _instance.nsListView2.SuspendLayout();
+                                // Fetch the list of connected users
+                                var connectedUsers = (await GetConnectedUsersAsync(GuildID)).Cast<SocketUser>().ToList();
 
-                                foreach (var user in connectedUsers)
+                                if (_instance.nsListView2?.IsHandleCreated == true)
                                 {
-                                    var nsListViewItem = _instance.nsListView2._Items.FirstOrDefault(item =>
-     item.Text == (user.GlobalName ?? user.Username));
+                                    _instance.nsListView2.SuspendLayout();
 
-                                    if (nsListViewItem == null)
+                                    // Remove users no longer in the connectedUsers list
+                                    foreach (var item in _instance.nsListView2._Items.ToList())
                                     {
-                                        // Create a new item only if it doesn't exist
-                                        nsListViewItem = new NSListView.NSListViewItem();
-                                        nsListViewItem.Text = user.GlobalName ?? user.Username;
-                                        _instance.nsListView2.AddItem(nsListViewItem.Text, user.Username, user.Id.ToString());
+                                        var userId = ulong.Parse(item.SubItems[1].Text);
+                                        if (!connectedUsers.Any(user => user.Id == userId))
+                                        {
+                                            _instance.nsListView2.BeginInvoke(new Action(() =>
+                                            {
+                                                // Clear all items
+                                                _instance.nsListView2.RemoveItemAt(0);
+
+                                                // Re-add remaining items
+                                                foreach (var user in connectedUsers)
+                                                {
+                                                    var nsListViewItem = _instance.nsListView2._Items.FirstOrDefault(item =>
+                                                        item.Text == (user.GlobalName ?? user.Username));
+
+                                                    if (nsListViewItem == null)
+                                                    {
+                                                        nsListViewItem = new NSListView.NSListViewItem();
+                                                        nsListViewItem.Text = user.GlobalName ?? user.Username;
+                                                        _instance.nsListView2.AddItem(nsListViewItem.Text, user.Username, user.Id.ToString());
+                                                    }
+                                                    else
+                                                    {
+                                                        nsListViewItem.SubItems[0].Text = user.Username;
+                                                        nsListViewItem.SubItems[1].Text = user.Id.ToString();
+                                                    }
+                                                }
+
+                                                // Update label on the UI thread
+                                                _instance.nsLabel29.Value1 = _instance.nsListView2.Items.Length.ToString();
+                                            }));
+                                        }
                                     }
-                                    else
+
+                                    foreach (var user in connectedUsers)
                                     {
-                                        // Update the existing item with the new information
-                                        nsListViewItem.Text = user.GlobalName ?? user.Username;
-                                        nsListViewItem.SubItems[1].Text = user.Username;
-                                        nsListViewItem.SubItems[2].Text = user.Id.ToString();
+                                        var nsListViewItem = _instance.nsListView2._Items.FirstOrDefault(item =>
+                                        item.Text == (user.GlobalName ?? user.Username));
+
+                                        if (nsListViewItem == null)
+                                        {
+                                            // Create a new item only if it doesn't exist
+                                            nsListViewItem = new NSListView.NSListViewItem();
+                                            nsListViewItem.Text = user.GlobalName ?? user.Username;
+                                            _instance.nsListView2.AddItem(nsListViewItem.Text, user.Username, user.Id.ToString());
+                                        }
+                                        else
+                                        {
+                                            // Update the existing item with the new information
+                                            nsListViewItem.SubItems[0].Text = user.Username;
+                                            nsListViewItem.SubItems[1].Text = user.Id.ToString();
+                                        }
                                     }
+
+                                    _instance.nsListView2.InvalidateLayout();
+                                    _instance.nsListView2.ResumeLayout();
+
+                                    // Update label on the UI thread
+                                    _instance.BeginInvoke(new Action(() =>
+                                    {
+                                        _instance.nsLabel29.Value1 = _instance.nsListView2.Items.Length.ToString();
+                                    }));
                                 }
-
-                                _instance.nsListView2.InvalidateLayout();
-                                _instance.nsListView2.ResumeLayout();
-                                _instance.nsLabel29.Value1 = _instance.nsListView2.Items.Length.ToString();
-
-
-
+                            }
+                            else
+                            {
+                                Console.WriteLine("Invalid ServerID provided in UserSettings.");
                             }
                         }
-                        else
-                        {
-                            Console.WriteLine("Invalid ServerID provided in UserSettings.");
-                        }
+
+                        // Wait for a short interval before checking again
+                        await Task.Delay(5000);
                     }
+                });
+            }
+            catch
+            {
+                Console.WriteLine("Could not load Server Member list on server." + Environment.NewLine + "This could be a network error, or an issue with Discord Servers");
 
-                    // Wait for a short interval before checking again
-                    await Task.Delay(5000);
-                }
-            });
+
+            }
         }
-
 
         public async Task PopulateListViewWithBannedUsers()
         {
-            Task.Run(async () =>
+            try
             {
-                while (true)
+                Task.Run(async () =>
                 {
-                    // Check if the form is still accessible before updating the UI
-                    if (_instance != null && !_instance.IsDisposed)
+                    while (true)
                     {
-                        string userfile2 = @"\UserCFG.ini";
-                        string GuildIDString = UserSettings(startupPath + userfile2, "ServerID"); // Your Server ID as string
-
-                        // Convert string to ulong
-                        if (ulong.TryParse(GuildIDString, out ulong GuildID))
+                        // Check if the form is still accessible before updating the UI
+                        if (_instance != null && !_instance.IsDisposed)
                         {
-                            // Get the ban list for the guild
-                            var bans = await GetBanList(GuildID);
+                            string userfile2 = @"\UserCFG.ini";
+                            string GuildIDString = UserSettings(startupPath + userfile2, "ServerID"); // Your Server ID as string
 
-                            if (bans != null && _instance.nsListView1?.IsHandleCreated == true)
+                            // Convert string to ulong
+                            if (ulong.TryParse(GuildIDString, out ulong GuildID))
                             {
-                                _instance.nsListView1.SuspendLayout();
+                                // Get the ban list for the guild
+                                var bans = await GetBanList(GuildID);
 
-                                foreach (var ban in bans)
+                                if (bans != null && _instance.nsListView1?.IsHandleCreated == true)
                                 {
-                                    var nsListViewItem = _instance.nsListView1._Items.FirstOrDefault(item =>
-                                       item.Text == (ban.User.GlobalName ?? ban.User.Username));
+                                    _instance.nsListView1.SuspendLayout();
 
-                                    if (nsListViewItem == null)
+                                    // Remove users no longer in the ban list
+                                    foreach (var item in _instance.nsListView1._Items.ToList())
                                     {
-                                        // Create a new item only if it doesn't exist
-                                        nsListViewItem = new NSListView.NSListViewItem();
-                                        nsListViewItem.Text = ban.User.GlobalName ?? ban.User.Username;
+                                        var userId = ulong.Parse(item.SubItems[1].Text);
+                                        if (!bans.Any(ban => ban.User.Id == userId))
+                                        {
+                                            _instance.nsListView1.BeginInvoke(new Action(() =>
+                                            {
+                                                // Clear all items
+                                                _instance.nsListView1.RemoveItemAt(0);
 
-                                        // Use AddItem for _instance.nsListView1
-                                        _instance.nsListView1.AddItem(nsListViewItem.Text, ban.User.Username + " #" + ban.User.Discriminator, ban.User.Id.ToString(), ban.Reason);
+                                                // Re-add remaining items
+                                                foreach (var ban in bans)
+                                                {
+                                                    var nsListViewItem = _instance.nsListView1._Items.FirstOrDefault(item =>
+                                                        item.Text == (ban.User.GlobalName ?? ban.User.Username));
+
+                                                    if (nsListViewItem == null)
+                                                    {
+                                                        nsListViewItem = new NSListView.NSListViewItem();
+                                                        nsListViewItem.Text = ban.User.GlobalName ?? ban.User.Username;
+                                                        _instance.nsListView1.AddItem(nsListViewItem.Text, ban.User.Username + " #" + ban.User.Discriminator, ban.User.Id.ToString(), ban.Reason);
+                                                    }
+                                                    else
+                                                    {
+                                                        nsListViewItem.SubItems[0].Text = ban.User.Username + " #" + ban.User.Discriminator;
+                                                        nsListViewItem.SubItems[1].Text = ban.User.Id.ToString();
+                                                        nsListViewItem.SubItems[2].Text = ban.Reason;
+                                                    }
+
+                                                }
+
+                                                // Update label on the UI thread
+                                                _instance.nsLabel30.Value1 = _instance.nsListView1.Items.Length.ToString();
+                                            }));
+
+                                        }
                                     }
-                                    else
+
+                                    foreach (var ban in bans)
                                     {
-                                        // Update existing item if needed
-                                        nsListViewItem.SubItems[0].Text = ban.User.Username + " #" + ban.User.Discriminator;
-                                        nsListViewItem.SubItems[1].Text = ban.User.Id.ToString();
-                                        nsListViewItem.SubItems[2].Text = ban.Reason;
+                                        var nsListViewItem = _instance.nsListView1._Items.FirstOrDefault(item =>
+                                            item.Text == (ban.User.GlobalName ?? ban.User.Username));
+
+                                        if (nsListViewItem == null)
+                                        {
+                                            // Create a new item only if it doesn't exist
+                                            nsListViewItem = new NSListView.NSListViewItem();
+                                            nsListViewItem.Text = ban.User.GlobalName ?? ban.User.Username;
+
+                                            // Use AddItem for _instance.nsListView1
+                                            _instance.nsListView1.AddItem(nsListViewItem.Text, ban.User.Username + " #" + ban.User.Discriminator, ban.User.Id.ToString(), ban.Reason);
+                                        }
+                                        else
+                                        {
+                                            // Update existing item if needed
+                                            nsListViewItem.SubItems[0].Text = ban.User.Username + " #" + ban.User.Discriminator;
+                                            nsListViewItem.SubItems[1].Text = ban.User.Id.ToString();
+                                            nsListViewItem.SubItems[2].Text = ban.Reason;
+                                        }
                                     }
+
+                                    _instance.nsListView1.InvalidateLayout();
+                                    _instance.nsListView1.ResumeLayout();
+
+                                    // Update label on the UI thread
+                                    _instance.BeginInvoke(new Action(() =>
+                                    {
+                                        _instance.nsLabel30.Value1 = _instance.nsListView1.Items.Length.ToString();
+                                    }));
                                 }
-
-                                _instance.nsListView1.InvalidateLayout();
-                                _instance.nsListView1.ResumeLayout();
-                                _instance.nsLabel30.Value1 = _instance.nsListView1.Items.Length.ToString();
+                            }
+                            else
+                            {
+                                Console.WriteLine("Invalid ServerID provided in UserSettings.");
                             }
                         }
-                        else
-                        {
-                            Console.WriteLine("Invalid ServerID provided in UserSettings.");
-                        }
-                    }
 
-                    // Wait for a short interval before checking again
-                    await Task.Delay(5000);
-                }
-            });
+                        // Wait for a short interval before checking again
+                        await Task.Delay(5000);
+                    }
+                });
+            }
+            catch
+            {
+                Console.WriteLine("Could not load Banned Users list on server." + Environment.NewLine + "This could be a network error, or an issue with Discord Servers");
+            }
+
         }
 
 
@@ -436,63 +532,70 @@ namespace Voidbot_Discord_Bot_GUI
 
         public async Task PopulateComboBoxWithChannels()
         {
-            Task.Run(async () =>
+            try
             {
-                while (true)
+                Task.Run(async () =>
                 {
-                    // Check if the form is still accessible before updating the UI
-                    if (_instance != null && !_instance.IsDisposed)
+                    while (true)
                     {
-                        // Get all guilds (servers) the bot is connected to
-                        var newChannels = new HashSet<string>();
-
-                        foreach (var guild in _client?.Guilds ?? Enumerable.Empty<SocketGuild>())
+                        // Check if the form is still accessible before updating the UI
+                        if (_instance != null && !_instance.IsDisposed)
                         {
-                            // Check if the guild is null before accessing text channels
-                            if (guild == null)
-                            {
-                                continue;
-                            }
+                            // Get all guilds (servers) the bot is connected to
+                            var newChannels = new HashSet<string>();
 
-                            // Get all text channels in the guild
-                            var textChannels = guild.TextChannels;
-
-                            // Add each text channel's name to the temporary HashSet
-                            foreach (var channel in textChannels)
+                            foreach (var guild in _client?.Guilds ?? Enumerable.Empty<SocketGuild>())
                             {
-                                // Check if the channel is null before adding
-                                if (channel != null)
+                                // Check if the guild is null before accessing text channels
+                                if (guild == null)
                                 {
-                                    newChannels.Add($"{channel.Name}");
+                                    continue;
                                 }
-                            }
-                        }
 
-                        // Safely update the ComboBox items only if there are changes
-                        _instance.nsComboBox1?.Invoke(new Action(() =>
-                        {
-                            // Check if the ComboBox is still accessible
-                            if (_instance.nsComboBox1.IsHandleCreated)
-                            {
-                                _instance.nsComboBox1.Sorted = false; // Disable sorting temporarily
-                                var currentItems = new HashSet<string>(_instance.nsComboBox1.Items.Cast<string>());
-                                if (!currentItems.SetEquals(newChannels))
+                                // Get all text channels in the guild
+                                var textChannels = guild.TextChannels;
+
+                                // Add each text channel's name to the temporary HashSet
+                                foreach (var channel in textChannels)
                                 {
-                                    _instance.nsComboBox1.Items.Clear();
-                                    foreach (var channel in newChannels)
+                                    // Check if the channel is null before adding
+                                    if (channel != null)
                                     {
-                                        _instance.nsComboBox1.Items.Add(channel);
-                                        _instance.nsComboBox1.Sorted = true; // Enable sorting
+                                        newChannels.Add($"{channel.Name}");
                                     }
                                 }
                             }
-                        }));
-                    }
 
-                    // Wait for a short interval before checking again
-                    await Task.Delay(1000);
-                }
-            });
+                            // Safely update the ComboBox items only if there are changes
+                            _instance.nsComboBox1?.Invoke(new Action(() =>
+                            {
+                                // Check if the ComboBox is still accessible
+                                if (_instance.nsComboBox1.IsHandleCreated)
+                                {
+                                    _instance.nsComboBox1.Sorted = false; // Disable sorting temporarily
+                                    var currentItems = new HashSet<string>(_instance.nsComboBox1.Items.Cast<string>());
+                                    if (!currentItems.SetEquals(newChannels))
+                                    {
+                                        _instance.nsComboBox1.Items.Clear();
+                                        foreach (var channel in newChannels)
+                                        {
+                                            _instance.nsComboBox1.Items.Add(channel);
+                                            _instance.nsComboBox1.Sorted = true; // Enable sorting
+                                        }
+                                    }
+                                }
+                            }));
+                        }
+
+                        // Wait for a short interval before checking again
+                        await Task.Delay(3000);
+                    }
+                });
+            }
+            catch
+            {
+                Console.WriteLine("Could not populate channel list." + Environment.NewLine + "This could be a network error, or an issue with Discord Servers");
+            }
         }
 
         public async Task SendMessageToDiscord(string message)
@@ -1239,7 +1342,6 @@ namespace Voidbot_Discord_Bot_GUI
                         {
                             // Delete the original command message
                             await message.DeleteAsync();
-
                             // Get the channel
                             var channel = message.Channel as SocketTextChannel;
 
@@ -1249,10 +1351,11 @@ namespace Voidbot_Discord_Bot_GUI
                                 // Fetch messages and filter out those older than two weeks
                                 var messages = await channel.GetMessagesAsync(messagesToPurge).FlattenAsync();
                                 var messagesToDelete = messages.Where(m => (DateTimeOffset.Now - m.CreatedAt).TotalDays < 14);
-
+                                Random rnd = new Random();
+                                int milliSecondDelay = rnd.Next(1000, 5001);
                                 // Delete the filtered messages
                                 await channel.DeleteMessagesAsync(messagesToDelete);
-
+                                await Task.Delay(rnd.Next(1000, 5001));  // Add a delay of 1 second between deletions
                                 // Inform about the purge
                                 await channel.SendMessageAsync($"Purged {messagesToDelete.Count()} messages.");
                                 Console.WriteLine($"Successfully Purged {messagesToDelete.Count()} messages.");
@@ -1434,11 +1537,20 @@ namespace Voidbot_Discord_Bot_GUI
         {
             try
             {
-                _instance.nsListView2?.BeginInvoke(new Action(async () =>
+                _instance.nsListView2?.Invoke(new Action(async () =>
                 {
                     if (_instance.nsListView2.IsHandleCreated)
                     {
                         await PopulateListViewWithConnectedUsersAsync();
+
+                    }
+                }));
+
+                _instance.nsListView1?.Invoke(new Action(async () =>
+                {
+                    if (_instance.nsListView1.IsHandleCreated)
+                    {
+                        await PopulateListViewWithBannedUsers();
                     }
                 }));
             }
@@ -1448,6 +1560,8 @@ namespace Voidbot_Discord_Bot_GUI
                 Console.WriteLine($"Error updating UI: {ex.Message}");
             }
         }
+
+
 
         private async Task UserJoined(SocketGuildUser user)
         {

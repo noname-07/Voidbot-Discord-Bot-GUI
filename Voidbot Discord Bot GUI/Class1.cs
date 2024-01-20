@@ -577,6 +577,7 @@ namespace Voidbot_Discord_Bot_GUI
         }
 
         public TextBox Base;
+
         public NSTextBox()
         {
             SetStyle((ControlStyles)139286, true);
@@ -585,6 +586,7 @@ namespace Voidbot_Discord_Bot_GUI
             Cursor = Cursors.IBeam;
 
             Base = new TextBox();
+
             Base.Font = Font;
             Base.Text = Text;
             Base.MaxLength = _MaxLength;
@@ -600,12 +602,20 @@ namespace Voidbot_Discord_Bot_GUI
             Base.Location = new Point(5, 5);
             Base.Width = Width - 14;
 
+            Base.Dock = DockStyle.Fill;
+
             if (_Multiline)
             {
-                Base.Height = Height - 11;
+                Base.Multiline = true;
+                Base.WordWrap = true;
+
+                // Only show the vertical scrollbar when the text goes past the bottom
+                Base.ScrollBars = ScrollBars.Vertical;
             }
             else
             {
+                Base.Multiline = false;
+                Base.ScrollBars = ScrollBars.Vertical;
                 Height = Base.Height + 11;
             }
 
@@ -615,6 +625,7 @@ namespace Voidbot_Discord_Bot_GUI
             P1 = new Pen(Color.FromArgb(35, 35, 35));
             P2 = new Pen(Color.FromArgb(55, 55, 55));
         }
+
 
         public GraphicsPath GP1, GP2;
 
